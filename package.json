@@ -1,0 +1,19 @@
+{
+  "name": "ngWebSocket",
+  "version": "0.0.0",
+  "description": "AngularJS WebSocket wrapper",
+  "main": "ng-websocket.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "keywords": [
+    "angular",
+    "websocket",
+    "ng"
+  ],
+  "author": "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "3bb59ef67d27eff0e88e637d0999b3e2141ef398"
+}
