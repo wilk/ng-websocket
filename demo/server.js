@@ -8,11 +8,4 @@ wss.on('connection', function (ws) {
         console.dir(msg);
         ws.send(msg);
     });
-
-    console.log('hey');
-
-    setInterval(function () {
-        console.log('here');
-        ws.send(JSON.stringify({event: 'data', data: 'LOL'}));
-    }, 1000);
 });
