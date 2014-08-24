@@ -1,12 +1,12 @@
 'use strict';
 
 angular
-    .module('demo', ['ngWebSocket'])
-    .config(function ($webSocketProvider) {
+    .module('demo', ['ngWebsocket'])
+    .config(function ($websocketProvider) {
         //$webSocketProvider.baseUrl('ws://localhost');
     })
-    .run(function ($webSocket) {
-        /*var ws = $webSocket.$new('ws://localhost:12345');
+    .run(function ($websocket) {
+        var ws = $websocket.$new('ws://localhost:12345');
 
         ws.$on('$message', function (message) {
             console.log('$message');
@@ -23,7 +23,7 @@ angular
 
             ws.$emit('test', {hi: 'dude'})
               .$emit('test', 'asd');
-        });*/
+        });
 
         /*ws.$on('$message', function (data) {
 
