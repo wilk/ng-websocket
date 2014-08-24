@@ -4,13 +4,16 @@
   "authors": [
     "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>"
   ],
-  "description": "AngularJS HTML5 WebSocket wrapper",
+  "description": "AngularJS HTML5 WebSocket powerful library",
   "main": "ng-websocket.js",
   "keywords": [
     "angular",
+    "angularjs",
     "websocket",
     "ng",
-    "html5"
+    "html5",
+    "service",
+    "provider"
   ],
   "license": "MIT",
   "ignore": [
@@ -20,7 +23,7 @@
     "test",
     "tests"
   ],
-  "devDependencies": {
+  "dependencies": {
     "angular": "~1.2.23"
   }
 }
