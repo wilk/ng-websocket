@@ -6,7 +6,7 @@ angular
         //$webSocketProvider.baseUrl('ws://localhost');
     })
     .run(function ($webSocket) {
-        var ws = $webSocket.$new('ws://localhost:12345');
+        /*var ws = $webSocket.$new('ws://localhost:12345');
 
         ws.$on('$message', function (message) {
             console.log('$message');
@@ -23,7 +23,7 @@ angular
 
             ws.$emit('test', {hi: 'dude'})
               .$emit('test', 'asd');
-        });
+        });*/
 
         /*ws.$on('$message', function (data) {
 

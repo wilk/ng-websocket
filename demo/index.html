@@ -8,6 +8,7 @@
     <script src="app.js"></script>
 </head>
 <body ng-app="demo">
-
+    <!--<input type="text" ng-websocket="{websocket: myWebsocket, event: 'data'}" ng-model="text"/>-->
+    <input type="text" ng-websocket="{url: 'ws://localhost:12345', event: 'data'}" ng-model="text"/>
 </body>
 </html>
