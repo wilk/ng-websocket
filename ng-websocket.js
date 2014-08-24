@@ -1,28 +1,37 @@
 'use strict';
 
 angular
-    .module('ngWebSocket', [])
-    .provider('$webSocket', function () {
+    .module('ngWebsocket', [])
+    .provider('$websocket', function () {
         var wsp = this;
 
-        function $webSocketManager () {
+        function $websocketManager () {
             var wsm = this;
 
+            wsm.websocketList = {};
+
             wsm.$new = function (cfg) {
-                return new $webSocket(cfg);
+                var ws = new $websocket(cfg);
+                wsm.websocketList[cfg] = ws;
+
+                return ws;
             };
         }
 
-        function $webSocket (cfg) {
+        function $websocket (cfg) {
             var me = this;
 
             me._eventMap = {};
 
             me._fireEvent = function () {
-                var event = arguments[0],
+                var args = [];
+
+                Array.prototype.push.apply(args, arguments);
+
+                var event = args.shift(),
                     handler = me._eventMap[event];
 
-                if (typeof handler === 'function') handler.call(me, arguments);
+                if (typeof handler === 'function') handler.apply(me, args);
             };
 
             me._init = function (cfg) {
@@ -58,7 +67,7 @@ angular
                 return me;
             };
 
-            me.$CONNECTING = 0
+            me.$CONNECTING = 0;
             me.$OPEN = 1;
             me.$CLOSING = 2;
             me.$CLOSED = 3;
@@ -110,6 +119,6 @@ angular
         }
 
         wsp.$get = function () {
-            return new $webSocketManager();
+            return new $websocketManager();
         };
     });
