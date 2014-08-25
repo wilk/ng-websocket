@@ -4,12 +4,17 @@
   "description": "AngularJS WebSocket wrapper",
   "main": "ng-websocket.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "bower install",
+    "pretest": "npm install",
+    "test": "node_modules/karma/bin/karma start test/karma.conf.js",
+    "test-single-run": "node_modules/karma/bin/karm start test/karma.conf.js --single-run"
   },
   "repository": "",
   "keywords": [
     "angular",
     "websocket",
+    "angularjs",
+    "hmlt5",
     "ng"
   ],
   "author": "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>",
@@ -17,6 +22,10 @@
   "readmeFilename": "README.md",
   "gitHead": "3bb59ef67d27eff0e88e637d0999b3e2141ef398",
   "devDependencies": {
-    "ws": "~0.4.32"
+    "ws": "~0.4.32",
+    "karma": "~0.12.22",
+    "karma-jasmine": "~0.1.5",
+    "karma-mocha-reporter": "~0.3.1",
+    "karma-phantomjs-launcher": "~0.1.4"
   }
 }
