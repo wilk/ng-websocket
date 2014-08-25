@@ -21,20 +21,20 @@ angular
         function $websocket (cfg) {
             var me = this;
 
-            me._eventMap = {};
+            me.$$eventMap = {};
 
-            me._fireEvent = function () {
+            me.$$fireEvent = function () {
                 var args = [];
 
                 Array.prototype.push.apply(args, arguments);
 
                 var event = args.shift(),
-                    handler = me._eventMap[event];
+                    handler = me.$$eventMap[event];
 
                 if (typeof handler === 'function') handler.apply(me, args);
             };
 
-            me._init = function (cfg) {
+            me.$$init = function (cfg) {
                 if (typeof cfg === 'undefined') throw new Error('An url must be specified for WebSocket');
 
                 if (typeof cfg === 'string') {
@@ -43,24 +43,24 @@ angular
                     me.ws.onmessage = function (message) {
                         try {
                             var decoded = JSON.parse(message.data);
-                            me._fireEvent(decoded.event, decoded.data);
-                            me._fireEvent('$message', decoded);
+                            me.$$fireEvent(decoded.event, decoded.data);
+                            me.$$fireEvent('$message', decoded);
                         }
                         catch (err) {
-                            me._fireEvent('$message', message.data);
+                            me.$$fireEvent('$message', message.data);
                         }
                     };
 
                     me.ws.onerror = function (error) {
-                        me._fireEvent('$error', error);
+                        me.$$fireEvent('$error', error);
                     };
 
                     me.ws.onopen = function () {
-                        me._fireEvent('$open');
+                        me.$$fireEvent('$open');
                     };
 
                     me.ws.onclose = function () {
-                        me._fireEvent('$close');
+                        me.$$fireEvent('$close');
                     };
                 }
 
@@ -75,7 +75,7 @@ angular
             me.$on = function (event, handler) {
                 if (typeof event !== 'string' || typeof handler !== 'function') throw new Error('$on accept two parameters: a String and a Function');
 
-                me._eventMap[event] = handler;
+                me.$$eventMap[event] = handler;
 
                 return me;
             };
@@ -83,7 +83,7 @@ angular
             me.$un = function (event) {
                 if (typeof event !== 'string') throw new Error('$un accept just a String');
 
-                delete me._eventMap[event];
+                delete me.$$eventMap[event];
 
                 return me;
             };
@@ -115,7 +115,7 @@ angular
                 return me.$status() === me.$OPEN;
             };
 
-            return me._init(cfg);
+            return me.$$init(cfg);
         }
 
         wsp.$get = function () {
