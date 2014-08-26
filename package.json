@@ -5,9 +5,9 @@
   "main": "ng-websocket.js",
   "scripts": {
     "postinstall": "bower install",
-    "pretest": "npm install",
-    "test": "node_modules/karma/bin/karma start test/karma.conf.js",
-    "test-single-run": "node_modules/karma/bin/karm start test/karma.conf.js --single-run"
+    "pretest": "node demo/server &",
+    "posttest": "pkill -9 node",
+    "test": "node_modules/karma/bin/karma start test/karma.conf.js --single-run"
   },
   "repository": "",
   "keywords": [
@@ -24,7 +24,7 @@
   "devDependencies": {
     "ws": "~0.4.32",
     "karma": "~0.12.22",
-    "karma-jasmine": "~0.1.5",
+    "karma-jasmine": "~0.2.0",
     "karma-mocha-reporter": "~0.3.1",
     "karma-phantomjs-launcher": "~0.1.4"
   }
