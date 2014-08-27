@@ -8,7 +8,7 @@ describe('Testing ng-websocket', function () {
         $websocket = _$websocket_;
     }));
 
-    describe('Testing a non-working websocket', function () {
+    describe('Testing an offline $websocket', function () {
         var ws;
 
         beforeEach(function () {
@@ -19,13 +19,26 @@ describe('Testing ng-websocket', function () {
             ws.$close();
         });
 
-        it('should create a connecting WebSocket', function () {
+        it('should remain in a CONNECTING state', function () {
             expect(ws).toBeDefined();
             expect(ws.$status()).toEqual(ws.$CONNECTING);
         });
+
+        it('should raise an Error when calling $emit', function () {
+            var error = null;
+
+            try {
+                ws.$emit('test', 'data');
+            }
+            catch (err) {
+                error = err;
+            }
+
+            expect(error).not.toBeNull();
+        });
     });
 
-    describe('Testing $websocket service', function () {
+    describe('Testing an online $websocket', function () {
         var ws;
 
         beforeEach(function (done) {
@@ -40,9 +53,22 @@ describe('Testing ng-websocket', function () {
             ws.$close();
         });
 
-        it('should have an open connection', function (done) {
+        it('should be in an OPEN state', function (done) {
             expect(ws.$status()).toEqual(ws.$OPEN);
             done();
+        });
+
+        it('should not to throw an Error when calling $emit', function () {
+            var error = null;
+
+            try {
+                ws.$emit('test', 'data');
+            }
+            catch (err) {
+                error = err;
+            }
+
+            expect(error).toBeNull();
         });
     });
 });
