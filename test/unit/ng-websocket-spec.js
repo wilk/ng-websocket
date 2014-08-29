@@ -107,4 +107,32 @@ describe('Testing ng-websocket', function () {
             });
         });
     });
+
+    describe('Testing a lazy websocket', function () {
+        var ws;
+
+        beforeEach(function () {
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                lazy: true
+            });
+        });
+
+        afterEach(function () {
+            ws.$close();
+        });
+
+        it('should be in a CLOSE state', function () {
+            expect(ws.$status()).toEqual(ws.$CLOSED);
+        });
+
+        it('should throw an error on $emit', function () {
+            try {
+                ws.$emit('test', 'data');
+            }
+            catch (err) {
+                expect(err).toBeDefined();
+            }
+        });
+    });
 });
