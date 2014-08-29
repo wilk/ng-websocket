@@ -92,11 +92,6 @@ angular
             me.$CLOSING = 2;
             me.$CLOSED = 3;
 
-            me.$open = function () {
-                if (me.$status() !== me.$OPEN) me.$$init(me.$$config);
-                return me;
-            };
-
             me.$on = function (event, handler) {
                 if (typeof event !== 'string' || typeof handler !== 'function') throw new Error('$on accept two parameters: a String and a Function');
 
@@ -123,6 +118,11 @@ angular
 
                 me.$$ws.send(JSON.stringify(message));
 
+                return me;
+            };
+
+            me.$open = function () {
+                if (me.$status() !== me.$OPEN) me.$$init(me.$$config);
                 return me;
             };
 
