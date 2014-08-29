@@ -10,8 +10,8 @@ angular
 
             wsm.$$websocketList = {};
             wsm.$$config = {
-                url: undefined,
-                lazy: false
+                lazy: false,
+                reconnect: false
             };
 
             wsm.$setup = function (cfg) {
@@ -39,11 +39,14 @@ angular
             if (typeof cfg === 'undefined' || (typeof cfg === 'object' && typeof cfg.url === 'undefined')) throw new Error('An url must be specified for WebSocket');
 
             me.$$eventMap = {};
+            me.$$ws = undefined;
+            me.$$reconnectTask = undefined;
             me.$$config = {
                 url: undefined,
-                lazy: false
+                lazy: false,
+                reconnect: false,
+                reconnectInterval: 2000
             };
-            me.$$ws = undefined;
 
             me.$$fireEvent = function () {
                 var args = [];
@@ -76,10 +79,21 @@ angular
 
                 me.$$ws.onopen = function () {
                     me.$$fireEvent('$open');
+
+                    if (me.$$reconnectTask) {
+                        clearInterval(me.$$reconnectTask);
+                        delete me.$$reconnectTask;
+                    }
                 };
 
                 me.$$ws.onclose = function () {
                     me.$$fireEvent('$close');
+
+                    if (me.$$config.reconnect) {
+                        me.$$reconnectTask = setInterval(function () {
+                            if (me.$status() === me.$CLOSED) me.$open();
+                        }, me.$$config.reconnectInterval);
+                    }
                 };
 
                 return me;
@@ -114,7 +128,7 @@ angular
                     data: data
                 };
 
-                me.$$ws.send(JSON.stringify(message));
+                if (me.$ready()) me.$$ws.send(JSON.stringify(message));
 
                 return me;
             };
@@ -126,6 +140,13 @@ angular
 
             me.$close = function () {
                 if (me.$status() !== me.$CLOSED) me.$$ws.close();
+
+                if (me.$$reconnectTask) {
+                    clearInterval(me.$$reconnectTask);
+                    delete me.$$reconnectTask;
+                }
+
+                me.$$config.reconnect = false;
 
                 return me;
             };
@@ -139,6 +160,7 @@ angular
                 return me.$status() === me.$OPEN;
             };
 
+            // setup
             me.$$config = angular.extend({}, me.$$config, cfg);
 
             if (!me.$$config.lazy) me.$$init(me.$$config);
