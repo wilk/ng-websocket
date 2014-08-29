@@ -16,20 +16,15 @@ angular
 
             wsm.$setup = function (cfg) {
                 cfg = cfg || {};
-                wsm.$$config.lazy = cfg.lazy || wsm.$$config.lazy;
+                wsm.$$config = angular.extend({}, wsm.$$config, cfg);
             };
 
             wsm.$new = function (cfg) {
-                var wsCfg = angular.copy(wsm.$$config);
+                cfg = cfg || {};
 
-                if (typeof cfg === 'string') {
-                    wsCfg.url = cfg;
-                }
-                else if (typeof cfg === 'object') {
-                    for (var prop in cfg) {
-                        if (wsCfg.hasOwnProperty(prop)) wsCfg[prop] = cfg[prop];
-                    }
-                }
+                if (typeof cfg === 'string') cfg = {url: cfg};
+
+                var wsCfg = angular.extend({}, wsm.$$config, cfg);
 
                 var ws = new $websocket(wsCfg);
                 wsm.$$websocketList[wsCfg.url] = ws;
@@ -41,8 +36,13 @@ angular
         function $websocket (cfg) {
             var me = this;
 
+            if (typeof cfg === 'undefined' || (typeof cfg === 'object' && typeof cfg.url === 'undefined')) throw new Error('An url must be specified for WebSocket');
+
             me.$$eventMap = {};
-            me.$$config = cfg;
+            me.$$config = {
+                url: undefined,
+                lazy: false
+            };
             me.$$ws = undefined;
 
             me.$$fireEvent = function () {
@@ -57,8 +57,6 @@ angular
             };
 
             me.$$init = function (cfg) {
-                if (typeof cfg === 'undefined') throw new Error('An url must be specified for WebSocket');
-
                 me.$$ws = new WebSocket(cfg.url);
 
                 me.$$ws.onmessage = function (message) {
@@ -140,6 +138,8 @@ angular
             me.$ready = function () {
                 return me.$status() === me.$OPEN;
             };
+
+            me.$$config = angular.extend({}, me.$$config, cfg);
 
             if (!me.$$config.lazy) me.$$init(me.$$config);
 
