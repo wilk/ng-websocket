@@ -10,6 +10,7 @@ angular
 
             wsm.$$websocketList = {};
             wsm.$$config = {
+                url: undefined,
                 lazy: false
             };
 
