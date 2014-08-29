@@ -91,6 +91,7 @@ describe('Testing ng-websocket', function () {
             ws.$emit('custom event', 'hello world');
 
             ws.$on('$message', function (message) {
+                expect(message.event).toEqual('custom event');
                 expect(message.data).toEqual('hello world');
 
                 done();
@@ -127,12 +128,74 @@ describe('Testing ng-websocket', function () {
         });
 
         it('should throw an error on $emit', function () {
+            var error;
+
             try {
                 ws.$emit('test', 'data');
             }
             catch (err) {
-                expect(err).toBeDefined();
+                error = err;
             }
+
+            expect(error).toBeDefined();
+        });
+
+        it('should open the connection when invoking $open', function () {
+            ws.$open();
+
+            ws.$on('$open', function () {
+                expect(ws.$status()).toEqual(ws.$OPEN);
+            });
+        });
+    });
+
+    describe('Testing an open lazy websocket', function () {
+        var ws;
+
+        beforeEach(function (done) {
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                lazy: true
+            });
+
+            ws.$open();
+
+            ws.$on('$open', function () {
+                done();
+            });
+        });
+
+        afterEach(function () {
+            ws.$close();
+        });
+
+        it('should be open', function (done) {
+            expect(ws.$status()).toEqual(ws.$OPEN);
+            done();
+        });
+
+        it('should send data via $emit', function (done) {
+            var error;
+
+            try {
+                ws.$emit('event', 'data');
+            }
+            catch (err) {
+                error = err;
+            }
+
+            expect(error).toBeUndefined();
+            done();
+        });
+
+        it('should have received the same message on the same event', function (done) {
+            ws.$emit('custom event', 'hello lazy world');
+
+            ws.$on('$message', function (message) {
+                expect(message.event).toEqual('custom event');
+                expect(message.data).toEqual('hello lazy world');
+                done();
+            });
         });
     });
 });
