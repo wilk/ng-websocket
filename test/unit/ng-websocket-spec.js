@@ -24,8 +24,8 @@ describe('Testing ng-websocket', function () {
             expect(ws.$status()).toEqual(ws.$CONNECTING);
         });
 
-        it('should raise an Error when calling $emit', function () {
-            var error = null;
+        it('should not raise an Error when calling $emit', function () {
+            var error;
 
             try {
                 ws.$emit('test', 'data');
@@ -34,7 +34,8 @@ describe('Testing ng-websocket', function () {
                 error = err;
             }
 
-            expect(error).not.toBeNull();
+            expect(error).toBeUndefined();
+            expect(ws.$status()).not.toEqual(ws.$OPEN);
         });
     });
 
@@ -59,7 +60,7 @@ describe('Testing ng-websocket', function () {
         });
 
         it('should not to throw an Error when calling $emit', function () {
-            var error = null;
+            var error;
 
             try {
                 ws.$emit('test', 'data');
@@ -68,7 +69,8 @@ describe('Testing ng-websocket', function () {
                 error = err;
             }
 
-            expect(error).toBeNull();
+            expect(ws.$status()).toEqual(ws.$OPEN);
+            expect(error).toBeUndefined();
         });
     });
 
@@ -127,7 +129,7 @@ describe('Testing ng-websocket', function () {
             expect(ws.$status()).toEqual(ws.$CLOSED);
         });
 
-        it('should throw an error on $emit', function () {
+        it('should not throw an error on $emit', function () {
             var error;
 
             try {
@@ -137,7 +139,8 @@ describe('Testing ng-websocket', function () {
                 error = err;
             }
 
-            expect(error).toBeDefined();
+            expect(error).not.toBeDefined();
+            expect(ws.$status()).toEqual(ws.$CLOSED);
         });
 
         it('should open the connection when invoking $open', function () {
