@@ -5,9 +5,7 @@
   "main": "ng-websocket.js",
   "scripts": {
     "postinstall": "bower install",
-    "pretest": "node demo/server &",
-    "posttest": "pkill -9 node",
-    "test": "node_modules/karma/bin/karma start test/karma.conf.js --single-run"
+    "test": "node_modules/gulp/bin/gulp.js test"
   },
   "repository": "",
   "keywords": [
@@ -26,6 +24,8 @@
     "karma": "~0.12.22",
     "karma-jasmine": "~0.2.0",
     "karma-mocha-reporter": "~0.3.1",
-    "karma-phantomjs-launcher": "~0.1.4"
+    "karma-phantomjs-launcher": "~0.1.4",
+    "gulp-karma": "0.0.4",
+    "gulp": "~3.8.7"
   }
 }
