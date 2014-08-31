@@ -13,9 +13,10 @@ module.exports = function (config) {
 
         frameworks: ['jasmine'],
 
-        autoWatch: true,
-
         browsers: ['PhantomJS'],
+
+        singleRun: true,
+        autoWatch: false,
 
         plugins: [
             'karma-phantomjs-launcher',
