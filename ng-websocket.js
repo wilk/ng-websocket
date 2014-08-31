@@ -11,7 +11,8 @@ angular
             wsm.$$websocketList = {};
             wsm.$$config = {
                 lazy: false,
-                reconnect: false
+                reconnect: false,
+                reconnectInterval: 2000
             };
 
             wsm.$setup = function (cfg) {
