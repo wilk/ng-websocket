@@ -4,7 +4,7 @@ var gulp = require('gulp'),
 
 gulp.task('test', function () {
     server.start();
-    
+
     return gulp.src([
             'bower_components/angular/angular.js',
             'bower_components/angular-mocks/angular-mocks.js',
