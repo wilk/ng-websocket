@@ -10,6 +10,9 @@ function Server () {
 
         wss.on('connection', function (ws) {
             ws.on('message', ws.send);
+            ws.on('close', function () {
+                ws.close();
+            });
         });
 
         return wss;
