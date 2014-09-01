@@ -1,10 +1,31 @@
 'use strict';
 
+/**
+ * @ngdoc module
+ * @name $websocket
+ * @module ngWebsocket
+ * @description
+ * HTML5 WebSocket module for AngularJS
+ */
 angular
     .module('ngWebsocket', [])
+    /**
+     * @ngdoc provider
+     * @name $websocketProvider
+     * @module ngWebsocket
+     * @description
+     * HTML5 WebSocket provider for AngularJS
+     */
     .provider('$websocket', function () {
         var wsp = this;
 
+        /**
+         * @ngdoc service
+         * @name $websocket
+         * @module ngWebsocket
+         * @description
+         * HTML5 Websocket service for AngularJS
+         */
         function $websocketManager () {
             var wsm = this;
 
@@ -34,6 +55,13 @@ angular
             };
         }
 
+        /**
+         * @ngdoc class
+         * @name $websocket
+         * @module ngWebsocket
+         * @description
+         * HTML5 Websocket wrapper class for AngularJS
+         */
         function $websocket (cfg) {
             var me = this;
 
@@ -122,7 +150,7 @@ angular
             };
 
             me.$emit = function (event, data) {
-                if (!(typeof event === 'string' && typeof data !== 'undefined')) throw new Error('$emit needs two parameter: a String and a Object or a String');
+                if (typeof event !== 'string') throw new Error('$emit needs two parameter: a String and a Object or a String');
 
                 var message = {
                     event: event,
