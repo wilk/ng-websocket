@@ -201,4 +201,54 @@ describe('Testing ng-websocket', function () {
             });
         });
     });
+
+    describe('Testing reconnect feature', function () {
+        var ws;
+
+        beforeEach(function (done) {
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                reconnect: true
+            });
+
+            ws.$open();
+
+            ws.$on('$open', function () {
+                done();
+            });
+        });
+
+        afterEach(function () {
+            ws.$close();
+        });
+
+        it('should reopen the connection', function (done) {
+            ws.$emit('close');
+
+            setTimeout(function () {
+                expect(ws.$status()).toEqual(ws.$OPEN);
+
+                jasmine.clock().uninstall();
+                done();
+            }, 4000);
+
+            jasmine.clock().install();
+            jasmine.clock().tick(4100);
+        });
+
+        it('should not reopen the connection', function (done) {
+            ws.$emit('close');
+
+            setTimeout(function () {
+                console.log(ws.$status());
+                expect(ws.$status()).not.toEqual(ws.$CLOSED);
+
+                jasmine.clock().uninstall();
+                done();
+            }, 3000);
+
+            jasmine.clock().install();
+            jasmine.clock().tick(3100);
+        });
+    });
 });
