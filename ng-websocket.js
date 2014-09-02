@@ -33,7 +33,8 @@ angular
             wsm.$$config = {
                 lazy: false,
                 reconnect: false,
-                reconnectInterval: 2000
+                reconnectInterval: 2000,
+                mock: false
             };
 
             wsm.$setup = function (cfg) {
@@ -55,6 +56,64 @@ angular
             };
         }
 
+        function $$mockWebsocket (cfg) {
+            cfg = cfg || {};
+
+            var me = this,
+                openTimeout = cfg.openTimeout || 500,
+                closeTimeout = cfg.closeTimeout || 1000,
+                messageInterval = cfg.messageInterval || 2000,
+                messageQueue = [];
+
+            me.readyState = WebSocket.CONNECTING;
+
+            me.send = function (message) {
+                if (me.readyState === WebSocket.OPEN) messageQueue.push(message);
+                else throw new Error('WebSocket is already in CLOSING or CLOSED state.');
+            };
+
+            me.close = function () {
+                if (me.readyState === WebSocket.OPEN) {
+                    me.readyState = WebSocket.CLOSING;
+
+                    setTimeout(function () {
+                        me.readyState = WebSocket.CLOSED;
+
+                        me.onclose();
+                    }, closeTimeout);
+                }
+            };
+
+            me.onmessage = function () {};
+            me.onerror = function () {};
+            me.onopen = function () {};
+            me.onclose = function () {};
+
+            setInterval(function () {
+                if (messageQueue.length > 0) {
+                    var message = messageQueue.pop(),
+                        msgObj = JSON.parse(message);
+
+                    switch (msgObj.event) {
+                        case 'close':
+                            me.close();
+                            break;
+                        default:
+                            me.onmessage({
+                                data: message
+                            });
+                    }
+                }
+            }, messageInterval);
+
+            setTimeout(function () {
+                me.readyState = WebSocket.OPEN;
+                me.onopen();
+            }, openTimeout);
+
+            return me;
+        }
+
         /**
          * @ngdoc class
          * @name $websocket
@@ -74,7 +133,8 @@ angular
                 url: undefined,
                 lazy: false,
                 reconnect: false,
-                reconnectInterval: 2000
+                reconnectInterval: 2000,
+                mock: false
             };
 
             me.$$fireEvent = function () {
@@ -89,7 +149,7 @@ angular
             };
 
             me.$$init = function (cfg) {
-                me.$$ws = new WebSocket(cfg.url);
+                me.$$ws = cfg.mock ? new $$mockWebsocket(cfg.mock) : new WebSocket(cfg.url);
 
                 me.$$ws.onmessage = function (message) {
                     try {
@@ -128,10 +188,10 @@ angular
                 return me;
             };
 
-            me.$CONNECTING = 0;
-            me.$OPEN = 1;
-            me.$CLOSING = 2;
-            me.$CLOSED = 3;
+            me.$CONNECTING = WebSocket.CONNECTING;
+            me.$OPEN = WebSocket.OPEN;
+            me.$CLOSING = WebSocket.CLOSING;
+            me.$CLOSED = WebSocket.CLOSED;
 
             me.$on = function (event, handler) {
                 if (typeof event !== 'string' || typeof handler !== 'function') throw new Error('$on accept two parameters: a String and a Function');
