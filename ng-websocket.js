@@ -65,19 +65,24 @@ angular
                 messageInterval = cfg.messageInterval || 2000,
                 messageQueue = [];
 
-            me.readyState = WebSocket.CONNECTING;
+            me.CONNECTING = 0;
+            me.OPEN = 1;
+            me.CLOSING = 2;
+            me.CLOSED = 3;
+
+            me.readyState = me.CONNECTING;
 
             me.send = function (message) {
-                if (me.readyState === WebSocket.OPEN) messageQueue.push(message);
+                if (me.readyState === me.OPEN) messageQueue.push(message);
                 else throw new Error('WebSocket is already in CLOSING or CLOSED state.');
             };
 
             me.close = function () {
-                if (me.readyState === WebSocket.OPEN) {
-                    me.readyState = WebSocket.CLOSING;
+                if (me.readyState === me.OPEN) {
+                    me.readyState = me.CLOSING;
 
                     setTimeout(function () {
-                        me.readyState = WebSocket.CLOSED;
+                        me.readyState = me.CLOSED;
 
                         me.onclose();
                     }, closeTimeout);
@@ -91,7 +96,7 @@ angular
 
             setInterval(function () {
                 if (messageQueue.length > 0) {
-                    var message = messageQueue.pop(),
+                    var message = messageQueue.shift(),
                         msgObj = JSON.parse(message);
 
                     switch (msgObj.event) {
@@ -107,7 +112,7 @@ angular
             }, messageInterval);
 
             setTimeout(function () {
-                me.readyState = WebSocket.OPEN;
+                me.readyState = me.OPEN;
                 me.onopen();
             }, openTimeout);
 
@@ -188,10 +193,10 @@ angular
                 return me;
             };
 
-            me.$CONNECTING = WebSocket.CONNECTING;
-            me.$OPEN = WebSocket.OPEN;
-            me.$CLOSING = WebSocket.CLOSING;
-            me.$CLOSED = WebSocket.CLOSED;
+            me.$CONNECTING = 0;
+            me.$OPEN = 1;
+            me.$CLOSING = 2;
+            me.$CLOSED = 3;
 
             me.$on = function (event, handler) {
                 if (typeof event !== 'string' || typeof handler !== 'function') throw new Error('$on accept two parameters: a String and a Function');
