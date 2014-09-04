@@ -42,6 +42,10 @@ angular
                 wsm.$$config = angular.extend({}, wsm.$$config, cfg);
             };
 
+            wsm.$get = function (url) {
+                return wsm.$$websocketList[url];
+            };
+
             wsm.$new = function (cfg) {
                 cfg = cfg || {};
 
