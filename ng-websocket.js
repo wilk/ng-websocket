@@ -32,7 +32,7 @@ angular
             wsm.$$websocketList = {};
             wsm.$$config = {
                 lazy: false,
-                reconnect: false,
+                reconnect: true,
                 reconnectInterval: 2000,
                 mock: false
             };
@@ -137,7 +137,7 @@ angular
             me.$$config = {
                 url: undefined,
                 lazy: false,
-                reconnect: false,
+                reconnect: true,
                 reconnectInterval: 2000,
                 mock: false
             };
