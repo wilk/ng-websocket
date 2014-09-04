@@ -20,4 +20,30 @@ describe('Testing ng-websocket-manager', function () {
             expect(ws.$on).toBeDefined();
         });
     });
+
+    describe('Testing $get operator', function () {
+        it('should return the same ng-websocket instance', function () {
+            var url = 'ws://localhost:12345';
+            var ws = $websocket.$new({
+                url: url,
+                mock: true
+            });
+
+            var wsObj = $websocket.$get(url);
+
+            expect(wsObj).toEqual(ws);
+        });
+
+        it('should not return the same ng-websocket instance', function () {
+            var url = 'ws://localhost:12345';
+            var ws = $websocket.$new({
+                url: url,
+                mock: true
+            });
+
+            var wsObj = $websocket.$get(url + ' foo');
+
+            expect(wsObj).not.toEqual(ws);
+        });
+    });
 });
