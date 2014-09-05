@@ -133,11 +133,14 @@ angular
             me.$$eventMap = {};
             me.$$ws = undefined;
             me.$$reconnectTask = undefined;
+            me.$$reconnectCopy = true;
+            me.$$queue = [];
             me.$$config = {
                 url: undefined,
                 lazy: false,
                 reconnect: true,
                 reconnectInterval: 2000,
+                enqueue: true,
                 mock: false
             };
 
@@ -171,22 +174,32 @@ angular
                 };
 
                 me.$$ws.onopen = function () {
-                    me.$$fireEvent('$open');
-
+                    // Clear the reconnect task if exists
                     if (me.$$reconnectTask) {
                         clearInterval(me.$$reconnectTask);
                         delete me.$$reconnectTask;
                     }
+
+                    // Flush the message queue
+                    if (me.$$config.enqueue && me.$$queue.length > 0) {
+                        while (me.$$queue.length > 0) {
+                            if (me.$ready()) me.$$send(me.$$queue.shift());
+                            else break;
+                        }
+                    }
+
+                    me.$$fireEvent('$open');
                 };
 
                 me.$$ws.onclose = function () {
-                    me.$$fireEvent('$close');
-
+                    // Activate the reconnect task
                     if (me.$$config.reconnect) {
                         me.$$reconnectTask = setInterval(function () {
                             if (me.$status() === me.$CLOSED) me.$open();
                         }, me.$$config.reconnectInterval);
                     }
+
+                    me.$$fireEvent('$close');
                 };
 
                 return me;
@@ -221,6 +234,11 @@ angular
                 return me;
             };
 
+            me.$$send = function (message) {
+                if (me.$ready()) me.$$ws.send(JSON.stringify(message));
+                else if (me.$$config.enqueue) me.$$queue.push(message);
+            };
+
             me.$emit = function (event, data) {
                 if (typeof event !== 'string') throw new Error('$emit needs two parameter: a String and a Object or a String');
 
@@ -229,12 +247,14 @@ angular
                     data: data
                 };
 
-                if (me.$ready()) me.$$ws.send(JSON.stringify(message));
+                me.$$send(message);
 
                 return me;
             };
 
             me.$open = function () {
+                me.$$config.reconnect = me.$$reconnectCopy;
+
                 if (me.$status() !== me.$OPEN) me.$$init(me.$$config);
                 return me;
             };
@@ -267,6 +287,7 @@ angular
 
             // setup
             me.$$config = angular.extend({}, me.$$config, cfg);
+            me.$$reconnectCopy = me.$$config.reconnect;
 
             if (!me.$$config.lazy) me.$$init(me.$$config);
 
