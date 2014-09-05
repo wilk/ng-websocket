@@ -26,33 +26,96 @@ angular
          * @description
          * HTML5 Websocket service for AngularJS
          */
-        function $websocketManager () {
-            var wsm = this;
+        function $websocketService (cfg) {
+            var wss = this;
 
-            wsm.$$websocketList = {};
-            wsm.$$config = {
-                lazy: false,
-                reconnect: false,
-                reconnectInterval: 2000
+            wss.$$websocketList = {};
+            wss.$$config = cfg || {};
+
+            wss.$get = function (url) {
+                return wss.$$websocketList[url];
             };
 
-            wsm.$setup = function (cfg) {
-                cfg = cfg || {};
-                wsm.$$config = angular.extend({}, wsm.$$config, cfg);
-            };
-
-            wsm.$new = function (cfg) {
+            wss.$new = function (cfg) {
                 cfg = cfg || {};
 
                 if (typeof cfg === 'string') cfg = {url: cfg};
 
-                var wsCfg = angular.extend({}, wsm.$$config, cfg);
+                var wsCfg = angular.extend({}, wss.$$config, cfg);
 
                 var ws = new $websocket(wsCfg);
-                wsm.$$websocketList[wsCfg.url] = ws;
+                wss.$$websocketList[wsCfg.url] = ws;
 
                 return ws;
             };
+        }
+
+        function $$mockWebsocket (cfg) {
+            cfg = cfg || {};
+
+            var me = this,
+                openTimeout = cfg.openTimeout || 500,
+                closeTimeout = cfg.closeTimeout || 1000,
+                messageInterval = cfg.messageInterval || 2000,
+                messageQueue = [];
+
+            me.CONNECTING = 0;
+            me.OPEN = 1;
+            me.CLOSING = 2;
+            me.CLOSED = 3;
+
+            me.readyState = me.CONNECTING;
+
+            me.send = function (message) {
+                if (me.readyState === me.OPEN) {
+                    messageQueue.push(message);
+                    return me;
+                }
+                else throw new Error('WebSocket is already in CLOSING or CLOSED state.');
+            };
+
+            me.close = function () {
+                if (me.readyState === me.OPEN) {
+                    me.readyState = me.CLOSING;
+
+                    setTimeout(function () {
+                        me.readyState = me.CLOSED;
+
+                        me.onclose();
+                    }, closeTimeout);
+                }
+
+                return me;
+            };
+
+            me.onmessage = function () {};
+            me.onerror = function () {};
+            me.onopen = function () {};
+            me.onclose = function () {};
+
+            setInterval(function () {
+                if (messageQueue.length > 0) {
+                    var message = messageQueue.shift(),
+                        msgObj = JSON.parse(message);
+
+                    switch (msgObj.event) {
+                        case 'close':
+                            me.close();
+                            break;
+                        default:
+                            me.onmessage({
+                                data: message
+                            });
+                    }
+                }
+            }, messageInterval);
+
+            setTimeout(function () {
+                me.readyState = me.OPEN;
+                me.onopen();
+            }, openTimeout);
+
+            return me;
         }
 
         /**
@@ -73,8 +136,9 @@ angular
             me.$$config = {
                 url: undefined,
                 lazy: false,
-                reconnect: false,
-                reconnectInterval: 2000
+                reconnect: true,
+                reconnectInterval: 2000,
+                mock: false
             };
 
             me.$$fireEvent = function () {
@@ -89,7 +153,7 @@ angular
             };
 
             me.$$init = function (cfg) {
-                me.$$ws = new WebSocket(cfg.url);
+                me.$$ws = cfg.mock ? new $$mockWebsocket(cfg.mock) : new WebSocket(cfg.url);
 
                 me.$$ws.onmessage = function (message) {
                     try {
@@ -132,6 +196,14 @@ angular
             me.$OPEN = 1;
             me.$CLOSING = 2;
             me.$CLOSED = 3;
+
+            // TODO: it doesn't refresh the view (maybe $apply on something?)
+            /*me.$bind = function (event, scope, model) {
+                me.$on(event, function (message) {
+                    model = message;
+                    scope.$apply();
+                });
+            };*/
 
             me.$on = function (event, handler) {
                 if (typeof event !== 'string' || typeof handler !== 'function') throw new Error('$on accept two parameters: a String and a Function');
@@ -189,6 +261,10 @@ angular
                 return me.$status() === me.$OPEN;
             };
 
+            me.$mockup = function () {
+                return me.$$config.mock;
+            };
+
             // setup
             me.$$config = angular.extend({}, me.$$config, cfg);
 
@@ -197,7 +273,21 @@ angular
             return me;
         }
 
+        wsp.$$config = {
+            lazy: false,
+            reconnect: true,
+            reconnectInterval: 2000,
+            mock: false
+        };
+
+        wsp.$setup = function (cfg) {
+            cfg = cfg || {};
+            wsp.$$config = angular.extend({}, wsp.$$config, cfg);
+
+            return wsp;
+        };
+
         wsp.$get = function () {
-            return new $websocketManager();
+            return new $websocketService(wsp.$$config);
         };
     });

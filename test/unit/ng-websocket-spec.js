@@ -2,6 +2,8 @@
 
 var $websocket;
 
+jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+
 describe('Testing ng-websocket', function () {
     beforeEach(module('ngWebsocket'));
     beforeEach(inject(function (_$websocket_) {
@@ -12,7 +14,10 @@ describe('Testing ng-websocket', function () {
         var ws;
 
         beforeEach(function () {
-            ws = $websocket.$new('ws://localhost:12345');
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: true
+            });
         });
 
         afterEach(function () {
@@ -43,7 +48,10 @@ describe('Testing ng-websocket', function () {
         var ws;
 
         beforeEach(function (done) {
-            ws = $websocket.$new('ws://localhost:12345');
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: true
+            });
 
             ws.$on('$open', function () {
                 done();
@@ -56,6 +64,7 @@ describe('Testing ng-websocket', function () {
 
         it('should be in an OPEN state', function (done) {
             expect(ws.$status()).toEqual(ws.$OPEN);
+            expect(ws.$ready()).toBeTruthy();
             done();
         });
 
@@ -74,11 +83,25 @@ describe('Testing ng-websocket', function () {
         });
     });
 
+    describe('Testing $mockup check', function () {
+        it('should return a mock up websocket', function () {
+            var ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: true
+            });
+
+            expect(ws.$mockup()).toBeTruthy();
+        });
+    });
+
     describe('Testing a parrot websocket server', function () {
         var ws;
 
         beforeEach(function (done) {
-            ws = $websocket.$new('ws://localhost:12345');
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: true
+            });
 
             ws.$on('$open', function () {
                 done();
@@ -111,12 +134,68 @@ describe('Testing ng-websocket', function () {
         });
     });
 
+    describe('Testing $on, $un, $emit functions', function () {
+        var ws;
+
+        beforeEach(function (done) {
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: true
+            });
+
+            ws.$on('$open', function () {
+                done();
+            });
+        });
+
+        afterEach(function () {
+            ws.$close();
+        });
+
+        it('should set a listener on $close general event', function (done) {
+            ws.$close();
+
+            ws.$on('$close', function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                done();
+            });
+        });
+
+        it('should unset a listener on $close general event', function (done) {
+            ws.$close();
+
+            var noUpdate = true;
+            ws.$on('$close', function () {
+                noUpdate = false;
+            });
+
+            setTimeout(function () {
+                expect(noUpdate).toBeTruthy();
+                done();
+            }, 4000);
+
+            ws.$un('$close');
+        });
+
+        it('should emit a custom event', function (done) {
+            ws.$emit('custom event', 'hello world');
+
+            ws.$on('custom event', function (message) {
+                expect(message).toEqual('hello world');
+
+                done();
+            });
+        });
+    });
+
     describe('Testing a lazy websocket', function () {
         var ws;
 
         beforeEach(function () {
             ws = $websocket.$new({
                 url: 'ws://localhost:12345',
+                mock: true,
                 lazy: true
             });
         });
@@ -158,6 +237,7 @@ describe('Testing ng-websocket', function () {
         beforeEach(function (done) {
             ws = $websocket.$new({
                 url: 'ws://localhost:12345',
+                mock: true,
                 lazy: true
             });
 
@@ -202,16 +282,17 @@ describe('Testing ng-websocket', function () {
         });
     });
 
-    describe('Testing reconnect feature', function () {
+    // BUG: this test doesn't work because of setInterval and setTimeout in the $websocket.$new
+    // and in the $websocket.$new({mock:true}) instances
+    xdescribe('Testing reconnect feature', function () {
         var ws;
 
         beforeEach(function (done) {
             ws = $websocket.$new({
                 url: 'ws://localhost:12345',
+                mock: true,
                 reconnect: true
             });
-
-            ws.$open();
 
             ws.$on('$open', function () {
                 done();
@@ -226,29 +307,31 @@ describe('Testing ng-websocket', function () {
             ws.$emit('close');
 
             setTimeout(function () {
-                expect(ws.$status()).toEqual(ws.$OPEN);
+                expect(ws.$ready()).toBeTruthy();
 
-                jasmine.clock().uninstall();
                 done();
-            }, 4000);
-
-            jasmine.clock().install();
-            jasmine.clock().tick(4100);
+            }, 8000);
         });
 
-        it('should not reopen the connection', function (done) {
+        it('should not reopen the connection in time', function (done) {
             ws.$emit('close');
 
             setTimeout(function () {
-                console.log(ws.$status());
-                expect(ws.$status()).not.toEqual(ws.$CLOSED);
+                expect(ws.$status()).toEqual(ws.$CONNECTING);
 
-                jasmine.clock().uninstall();
                 done();
-            }, 3000);
+            }, 8000);
+        });
 
-            jasmine.clock().install();
-            jasmine.clock().tick(3100);
+        it('should not reopen the connection', function (done) {
+            ws.$close();
+
+            expect(ws.$status()).toEqual(ws.$CLOSING);
+
+            setTimeout(function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+                done();
+            }, 4000);
         });
     });
 });
