@@ -2,11 +2,18 @@
 
 var $websocket;
 
-describe('Testing ng-websocket-manager', function () {
+describe('Testing ng-websocket-service', function () {
     beforeEach(module('ngWebsocket'));
     beforeEach(inject(function (_$websocket_) {
         $websocket = _$websocket_;
     }));
+
+    describe('Testing base definitions', function () {
+        it('should have $new and $get methods', function () {
+            expect($websocket.$new).toBeDefined();
+            expect($websocket.$get).toBeDefined();
+        });
+    });
 
     describe('Testing $new operator', function () {
         it('should return a ng-websocket instance', function () {
