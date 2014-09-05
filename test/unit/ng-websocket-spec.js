@@ -64,6 +64,7 @@ describe('Testing ng-websocket', function () {
 
         it('should be in an OPEN state', function (done) {
             expect(ws.$status()).toEqual(ws.$OPEN);
+            expect(ws.$ready()).toBeTruthy();
             done();
         });
 
@@ -79,6 +80,17 @@ describe('Testing ng-websocket', function () {
 
             expect(ws.$status()).toEqual(ws.$OPEN);
             expect(error).toBeUndefined();
+        });
+    });
+
+    describe('Testing $mockup check', function () {
+        it('should return a mock up websocket', function () {
+            var ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: true
+            });
+
+            expect(ws.$mockup()).toBeTruthy();
         });
     });
 
@@ -112,6 +124,61 @@ describe('Testing ng-websocket', function () {
         });
 
         it('should have received the same message on the same event', function (done) {
+            ws.$emit('custom event', 'hello world');
+
+            ws.$on('custom event', function (message) {
+                expect(message).toEqual('hello world');
+
+                done();
+            });
+        });
+    });
+
+    describe('Testing $on, $un, $emit functions', function () {
+        var ws;
+
+        beforeEach(function (done) {
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: true
+            });
+
+            ws.$on('$open', function () {
+                done();
+            });
+        });
+
+        afterEach(function () {
+            ws.$close();
+        });
+
+        it('should set a listener on $close general event', function (done) {
+            ws.$close();
+
+            ws.$on('$close', function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                done();
+            });
+        });
+
+        it('should unset a listener on $close general event', function (done) {
+            ws.$close();
+
+            var noUpdate = true;
+            ws.$on('$close', function () {
+                noUpdate = false;
+            });
+
+            setTimeout(function () {
+                expect(noUpdate).toBeTruthy();
+                done();
+            }, 4000);
+
+            ws.$un('$close');
+        });
+
+        it('should emit a custom event', function (done) {
             ws.$emit('custom event', 'hello world');
 
             ws.$on('custom event', function (message) {
@@ -242,12 +309,8 @@ describe('Testing ng-websocket', function () {
             setTimeout(function () {
                 expect(ws.$ready()).toBeTruthy();
 
-                jasmine.clock().uninstall();
                 done();
             }, 8000);
-
-            jasmine.clock().install();
-            jasmine.clock().tick(8100);
         });
 
         it('should not reopen the connection in time', function (done) {
@@ -256,12 +319,8 @@ describe('Testing ng-websocket', function () {
             setTimeout(function () {
                 expect(ws.$status()).toEqual(ws.$CONNECTING);
 
-                jasmine.clock().uninstall();
                 done();
             }, 8000);
-
-            jasmine.clock().install();
-            jasmine.clock().tick(8100);
         });
 
         it('should not reopen the connection', function (done) {
@@ -271,13 +330,8 @@ describe('Testing ng-websocket', function () {
 
             setTimeout(function () {
                 expect(ws.$status()).toEqual(ws.$CLOSED);
-
-                jasmine.clock().uninstall();
                 done();
             }, 4000);
-
-            jasmine.clock().install();
-            jasmine.clock().tick(4100);
         });
     });
 });
