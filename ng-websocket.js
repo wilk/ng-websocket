@@ -140,7 +140,7 @@ angular
                 lazy: false,
                 reconnect: true,
                 reconnectInterval: 2000,
-                enqueue: true,
+                enqueue: false,
                 mock: false
             };
 
@@ -298,7 +298,8 @@ angular
             lazy: false,
             reconnect: true,
             reconnectInterval: 2000,
-            mock: false
+            mock: false,
+            enqueue: false
         };
 
         wsp.$setup = function (cfg) {
