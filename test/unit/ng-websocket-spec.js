@@ -282,6 +282,69 @@ describe('Testing ng-websocket', function () {
         });
     });
 
+    describe('Testing enqueue feature', function () {
+        var ws;
+
+        beforeEach(function (done) {
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: {
+                    messageInterval: 500
+                },
+                lazy: true,
+                enqueue: true
+            });
+
+            done();
+        });
+
+        afterEach(function () {
+            ws.$close();
+        });
+
+        it('should enqueue the message and flush it when is ready', function (done) {
+            ws.$on('my event', function (msg) {
+                expect(ws.$ready()).toBeTruthy();
+                expect(msg).toEqual('hello world');
+                done();
+            });
+
+            ws.$emit('my event', 'hello world');
+            setTimeout(function () {
+                ws.$open();
+            }, 2500);
+        });
+
+        it('should enqueue every message and flush all of them when is ready', function (done) {
+            var counter = 5,
+                eventCounter = 0;
+
+            ws.$on('my event', function (msg) {
+                expect(ws.$ready()).toBeTruthy();
+                expect(msg).toEqual('Data #' + eventCounter);
+
+                eventCounter++;
+            });
+
+            ws.$on('another event', function (msg) {
+                expect(ws.$ready()).toBeTruthy();
+                expect(msg).toEqual('hello world');
+
+                expect(eventCounter).toEqual(counter);
+
+                done();
+            });
+
+            for (var i = 0; i < counter; i++) ws.$emit('my event', 'Data #' + i);
+
+            ws.$emit('another event', 'hello world');
+
+            setTimeout(function () {
+                ws.$open();
+            }, 500);
+        });
+    });
+
     // BUG: this test doesn't work because of setInterval and setTimeout in the $websocket.$new
     // and in the $websocket.$new({mock:true}) instances
     xdescribe('Testing reconnect feature', function () {
