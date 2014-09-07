@@ -345,6 +345,43 @@ describe('Testing ng-websocket', function () {
         });
     });
 
+    describe('Testing mock fixtures feature', function () {
+        var ws;
+
+        beforeEach(function (done) {
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: {
+                    fixtures: {
+                        'custom event': {
+                            hello: 'world',
+                            number: 10
+                        }
+                    }
+                }
+            });
+
+            ws.$on('$open', function () {
+                done();
+            });
+        });
+
+        afterEach(function () {
+            ws.$close();
+        });
+
+        it('should responde with fixtures data', function (done) {
+            ws.$on('custom event', function (msg) {
+                expect(msg).toBeDefined();
+                expect(msg.hello).toEqual('world');
+                expect(msg.number).toEqual(10);
+                done();
+            });
+
+            ws.$emit('custom event');
+        });
+    });
+
     // BUG: this test doesn't work because of setInterval and setTimeout in the $websocket.$new
     // and in the $websocket.$new({mock:true}) instances
     xdescribe('Testing reconnect feature', function () {
