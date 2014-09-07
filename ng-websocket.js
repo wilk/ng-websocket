@@ -57,6 +57,7 @@ angular
                 openTimeout = cfg.openTimeout || 500,
                 closeTimeout = cfg.closeTimeout || 1000,
                 messageInterval = cfg.messageInterval || 2000,
+                fixtures = cfg.fixtures || {},
                 messageQueue = [];
 
             me.CONNECTING = 0;
@@ -103,6 +104,13 @@ angular
                             me.close();
                             break;
                         default:
+                            var fixture = fixtures[msgObj.event];
+
+                            if (fixture) {
+                                msgObj.data = fixture;
+                                message = JSON.stringify(msgObj);
+                            }
+
                             me.onmessage({
                                 data: message
                             });
