@@ -100,7 +100,7 @@ angular
                         msgObj = JSON.parse(message);
 
                     switch (msgObj.event) {
-                        case 'close':
+                        case '$close':
                             me.close();
                             break;
                         default:
