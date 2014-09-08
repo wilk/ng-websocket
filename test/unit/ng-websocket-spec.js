@@ -404,7 +404,7 @@ describe('Testing ng-websocket', function () {
         });
 
         it('should reopen the connection', function (done) {
-            ws.$emit('close');
+            ws.$emit('$close');
 
             setTimeout(function () {
                 expect(ws.$ready()).toBeTruthy();
@@ -414,7 +414,7 @@ describe('Testing ng-websocket', function () {
         });
 
         it('should not reopen the connection in time', function (done) {
-            ws.$emit('close');
+            ws.$emit('$close');
 
             setTimeout(function () {
                 expect(ws.$status()).toEqual(ws.$CONNECTING);
