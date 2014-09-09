@@ -1,7 +1,7 @@
 ng-websocket
 ============
 
-AngularJS HTML5 WebSocket powerful library
+AngularJS HTML5 WebSocket powerful module
 
 # Index
 
@@ -9,6 +9,7 @@ AngularJS HTML5 WebSocket powerful library
   - [Requirements](#requirements)
   - [Installation](#installation)
   - [Usage](#usage)
+  - [Tutorial](#tutorial)
   - [API](#api)
     - [$websocketProvider](#$websocketProvider)
       - [$setup](#$setup)
@@ -31,9 +32,22 @@ AngularJS HTML5 WebSocket powerful library
       - [Constructor](#constructor)
   - [License](#license)
 
+# Introduction
+
+ngWebsocket is a library that provides a provider and a service to handle HTML5 WebSocket with ease
+in pure AngularJS style!
+The idea behind this module is to give four kinds of object to handle websockets:
+
+  - $websocketProvider: the provider is on top of usage. In fact, you can setup a general configuration for each ngWebsocket you're going to create
+  - $websocket: following an Angular service that lets you to handle different websocket instance among your application
+  - ngWebsocket: an instance of the HTML5 WebSocket wrapper (this is actually the core of this module): it provides lots of feature to work with websockets
+  - $$mockWebsocket: this is a smart implementation of a websocket backend that lets you to developer and test your app without a real responding server
+
+For each of these objects an API is available and fully documented in this document.
+
 # Requirements
 
-The only needed requirement is [AngularJS]() that you can install it via [Bower]().
+The only requirement needed is [AngularJS]() that you can install it via [Bower]().
 
 # Installation
 
@@ -73,6 +87,132 @@ Then, in your Angular application definition (assumed `app.js`):
 
 Now, you're ready to use it!
 
+# Tutorial
+
+Need to use HTML5 WebSocket to build your cool web application, huh?
+No problem, dude! Check this out!
+
+```javascript
+'use strict';
+
+angular.module('MyCoolWebApp', ['ngWebsocket'])
+    .run(function ($websocket) {
+        var ws = $websocket.$new('ws://localhost:12345'); // instance of ngWebsocket, handled by $websocket service
+
+        ws.$on('$open', function () {
+            console.log('Oh my gosh, websocket is really open! Fukken awesome!');
+
+            ws.$emit('ping', 'hi listening websocket server'); // send a message to the websocket server
+
+            var data = {
+                level: 1,
+                text: 'ngWebsocket rocks!',
+                array: ['one', 'two', 'three'],
+                nested: {
+                    level: 2,
+                    deeper: [{
+                        hell: 'yeah'
+                    }, {
+                        so: 'good'
+                    }]
+                }
+            };
+
+            ws.$emit('pong', data);
+        });
+
+        ws.$on('pong', function (data) {
+            console.log('The websocket server has sent the following data:');
+            console.log(data);
+
+            ws.$close();
+        });
+
+        ws.$on('$close', function () {
+            console.log('Noooooooooou, I want to have more fun with ngWebsocket, damn it!');
+        });
+    });
+```
+
+Easy, right?
+
+Well, let's chain it!
+
+```javascript
+'use strict';
+
+angular.module('MyCoolChainedWebApp', ['ngWebsocket'])
+    .run(function ($websocket) {
+        var ws = $websocket.$new('ws://localhost:12345')
+          .$on('$open', function () {
+            console.log('Oh my gosh, websocket is really open! Fukken awesome!');
+
+            var data = {
+                level: 1,
+                text: 'ngWebsocket rocks!',
+                array: ['one', 'two', 'three'],
+                nested: {
+                    level: 2,
+                    deeper: [{
+                        hell: 'yeah'
+                    }, {
+                        so: 'good'
+                    }]
+                }
+            };
+
+            ws.$emit('ping', 'hi listening websocket server') // send a message to the websocket server
+              .$emit('pong', data);
+          })
+          .$on('pong', function (data) {
+            console.log('The websocket server has sent the following data:');
+            console.log(data);
+
+            ws.$close();
+          })
+          .$on('$close', function () {
+            console.log('Noooooooooou, I want to have more fun with ngWebsocket, damn it!');
+          });
+    });
+```
+
+Your back-end team is lazy? No problem: we can do it on our own!
+
+```javascript
+'use strict';
+
+angular.module('MyIndipendentCoolWebApp', ['ngWebsocket'])
+    .run(function ($websocket) {
+        var ws = $websocket.$new({
+            url: 'ws://localhost:12345',
+            mock: {
+                fixtures: {
+                    'custom event': 'websocket server mocked response',
+                    'another event': {
+                        damn: 'dude',
+                        that: 'is awesome!'
+                    }
+                }
+            }
+        });
+
+        ws.$on('$open', function () {
+            ws.$emit('an event', 'a parrot response') // by default it responde with the same incoming data
+              .$emit('custom event') // otherwise it uses the given fixtures
+              .$emit('another event'); // even for objects
+          })
+          .$on('an event', function (message) {
+            console.log(message); // it prints 'a parrot response'
+          })
+          .$on('custom event', function (message) {
+            console.log(message); // it prints 'websocket server mocked response'
+          })
+          .$on('another event', function (message) {
+            console.log(message); // it prints the object {damn: 'dude', that: 'is awesome!'}
+          });
+    });
+```
+
 # API
 
 ngWebsocket APIs are composed by four different modules:
@@ -80,7 +220,7 @@ ngWebsocket APIs are composed by four different modules:
  - $websocketProvider
  - $websocket
  - ngWebsocket
- - $$mockWebsocket (internal but configurable)
+ - $$mockWebsocket (private but configurable)
 
 ## $websocketProvider
 
