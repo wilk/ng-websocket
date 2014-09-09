@@ -228,13 +228,69 @@ Following the API of ngWebsocket Provider
 
 ### $setup
 
+If you need to setup your custom default configuration for each ngWebsocket istance, pass it to this method:
+
+```javascript
+angular.config(function ($websocketProvider) {
+    $websocketProvider.$setup({
+        lazy: false,
+        reconnect: true,
+        reconnectInterval: 2000,
+        mock: false,
+        enqueue: false
+    });
+});
+```
+
 ## $websocket
 
-Following the API of ngWebsocket Service
+Following the API of the $websocket Service
 
 ### $get
 
+Every ngWebsocket instance created with [$websocket.$new](#$new) method are stored within the $websocket service.
+To get one of them, you can use **$get** with the url of the websocket you're looking for:
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$get('ws://localhost:12345');
+});
+```
+
+The url is needed because it is stored using the url as the key of an hashmap.
+
 ### $new
+
+There are two ways to create a new instance of ngWebsocket:
+
+**string (url)**
+
+The url is always needed and it has to start with the websocket schema (ws:// or wss://):
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new('ws://localhost:12345');
+});
+```
+
+A new instance is returned and the internal WebSocket has already started the connection with the websocket server on the backend.
+
+**object**
+
+All of the following configurations can be changed:
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new(
+        url: 'ws://localhost:12345',
+        lazy: false,
+        reconnect: true,
+        reconnectInterval: 2000,
+        mock: false,
+        enqueue: false
+    );
+});
+```
 
 ## ngWebsocket
 
