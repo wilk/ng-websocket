@@ -514,17 +514,17 @@ angular.run(function ($websocket) {
 });
 ```
 
-For more information see the [ngWebsocket Constructor section](#Constructor).
+For more information see the [ngWebsocket Constructor section](#constructor).
 
 **Usage**
 
 ```javascript
-$new(url|config)| ------
+$new(url|config)
 ```
 
 **Arguments**
 
-| **Param**  | **Type** | **Details** |
+| **Param** | **Type** | **Details** |
 | --------- | -------- | ----------- |
 | url/config | String/Object | websocket url or a configuration set |
 
@@ -776,7 +776,7 @@ $close()
 ### $status
 
 It returns the current status of the websocket connection.
-It's possible to use the [websocket constants](#Constants) to make checks.
+It's possible to use the [websocket constants](#constants) to make checks.
 
 ```javascript
 angular.run(function ($websocket) {
