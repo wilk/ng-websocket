@@ -106,6 +106,7 @@ angular
                         default:
                             var fixture = fixtures[msgObj.event];
 
+                            // Overwrite outgoing data with fixtures
                             if (fixture) {
                                 msgObj.data = fixture;
                                 message = JSON.stringify(msgObj);
