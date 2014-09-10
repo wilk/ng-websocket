@@ -62,10 +62,12 @@ Use [Bower]() to install this module:
 $ bower install ng-websocket
 ```
 
-Or simply `git clone` the repo:
+Or simply `git clone` the repo and install the dependencies with [NPM]():
 
 ```bash
 $ git clone https://github.com/wilk/ngWebsocket
+$ cd ngWebsocket
+$ npm install
 ```
 
 # Usage
@@ -220,7 +222,34 @@ angular.module('MyIndipendentCoolWebApp', ['ngWebsocket'])
 
 # Features
 
+ngWebsocket comes from Italy with lots of interesting stuff, folks!
+Why not just a wrapper? Because we can do more with happiness and fun!
+
+So, let's discover the awesome features list!
+
 ## Lazy
+
+Using basic HTML5 WebSocket object, you experienced that the connection is open immediately, just after the websocket is created with **new** constructor.
+By default, the same behaviour is used by ngWebsocket but you can simply change it with this powerful feature:
+
+```javascript
+angular.run(function ($websocket, $timeout) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        lazy: true
+    });
+
+    ws.$on('$open', function () {
+        console.log('The ngWebsocket has open!'); // It will print after 5 (or more) seconds
+    });
+
+    $timeout(function () {
+        ws.$open(); // Open the connction only at this point. It will fire the '$open' event
+    }, 5000);
+});
+```
+
+With [$websocket.$open](#$open) function, you can open the connection when you want, especially after the coffee break.
 
 ## Reconnect
 
