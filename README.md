@@ -333,6 +333,57 @@ angular.run(function ($websocket) {
 
 ## Mock
 
+Dulcis in fundo, a websocket server implementation to use and test your application, without a real websocket server listening!
+Yep, you well heard!
+
+Think about this situation: you're developing the front-end part of your company application and the backend team is lazy (because every developer is lazy),
+so you couldn't start writing your section because you need to send/retrieve data to/from the server.
+
+No problem, you can!
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        mock: true
+    });
+
+    ws.$on('$open', function () {
+        ws.$emit('hi', 'dude');
+      })
+      .$on('hi', function (message) {
+        console.log(message); // it prints 'dude'
+      });
+});
+```
+
+By default, the mock feature simulate a parrot websocket server: this means that every message sent with
+a certain event, will have a response with the same structure, with the same event and the same data.
+
+However, you can setup some fixtures that simulate what your lazy back-end team is going to do after beer time:
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        mock: {
+            fixtures: {
+                hi: 'dude, this is a custom message!'
+            }
+        }
+    });
+
+    ws.$on('$open', function () {
+        ws.$emit('hi');
+      })
+      .$on('hi', function (message) {
+        console.log(message); // it prints 'dude, this is a custom message'
+      });
+});
+```
+
+**Default: disabled**
+
 # Testing
 
 This module uses [Karma]() with [Jasmine]() for unit testing, so before launching any test check out if all dependencies are correctly installed:
