@@ -702,7 +702,30 @@ angular.run(function ($websocket) {
 
 ## $$mockWebsocket
 
-Following the API to configure the internal mocked ngWebsocket server
+If you need to develop or test your application without a real websocket backend server, you can setup
+a mockup of it with this feature.
+The only thing to do is to pass a configuration object during the ngWebsocket initialization:
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        mock: {
+            openTimeout: 500,
+            closeTimeout: 1000,
+            messageInterval: 2000,
+            fixtures: {}
+        }
+    });
+```
+
+Following the explanation of the configuration object - {Type} PropertyName (default)::
+
+  - {Boolean/Object} mock (false): could be either a Boolean (default to false) or an object
+  - {Number} openTimeout (500): timeout to make the internal websocket to get open
+  - {Number} closeTimeout (1000): timeout to make the internal websocket to get closed
+  - {Number} messageInterval (2000): the internal websocket sends enqueued message with this interval time
+  - {Object} fixtures ({}): an object of fixtures, where the keys are the events and the values are the data to respond
 
 # License
 
