@@ -552,19 +552,153 @@ The other events are custom events, setup by the user itself.
 
 ### $on
 
+Attach a handler to a specific event.
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new('ws://localhost:12345');
+
+    ws.$on('my event', function myHandler () {...});
+});
+```
+
+Now the websocket is listening for 'my event' event and the handler 'myHandler' will be called when that event
+is sent by the websocket server.
+
 ### $un
+
+Detach a handler from a specific event.
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new('ws://localhost:12345');
+
+    ws.$on('my event', function myHandler () {...});
+    ws.$un('my event');
+});
+```
+
+The above websocket has not listener attached at the end of the execution.
 
 ### $emit
 
+Send an event to the websocket server.
+
+It's possible to send a lonely event or attaching some data to it.
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new('ws://localhost:12345');
+
+    ws.$on('$open', function () {
+        ws.$emit('lonely event'); // the websocket server will receive only the event name
+        ws.$emit('event with data', 'some data'); // it will send the event with 'some data' string
+        ws.$emit('with object', {some: 'data'}); // it will send the event with the object JSONified
+    });
+});
+```
+
+It's possible to send both simply (like strings and numbers) and complex data (like objects and arrays).
+
 ### $open
+
+Open the websocket connection if it's closed.
+
+```javascript
+angular.run(function ($websocket, $timeout) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        lazy: true
+    });
+
+    ws.$on('$open', function () {
+        console.log('The websocket now is open');
+    });
+
+    $timeout(function () {
+        ws.$open(); // it will open the websocket after 5 seconds
+    }, 5000);
+```
 
 ### $close
 
+It closes the websocket connection if it's open.
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new(url: 'ws://localhost:12345');
+
+    ws.$on('$open', function () {
+        ws.$close(); // it closes the websocket connection
+    });
+
+    ws.$on('$close', function () {
+        console.log('Connection closed!');
+    });
+```
+
 ### $status
+
+It returns the current status of the websocket connection.
+It's possible to use the [websocket constants](#Constants) to make checks.
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new(url: 'ws://localhost:12345');
+
+    console.log(ws.$status()); // it prints ws.$CONNECTING
+
+    ws.$on('$open', function () {
+        console.log(ws.$status()); // it prints ws.$OPEN
+        ws.$close(); // it closes the websocket connection
+        console.log(ws.$status()); // it prints ws.$CLOSING
+    });
+
+    ws.$on('$close', function () {
+        console.log(ws.$status()); // it prints ws.$CLOSED
+        console.log('Connection closed!');
+    });
+```
 
 ### $ready
 
+It returns if the websocket connection is open or closed.
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new(url: 'ws://localhost:12345');
+
+    console.log(ws.$ready()); // it prints false
+
+    ws.$on('$open', function () {
+        console.log(ws.$ready()); // it prints true
+        ws.$close(); // it closes the websocket connection
+        console.log(ws.$ready()); // it prints false
+    });
+
+    ws.$on('$close', function () {
+        console.log(ws.$ready()); // it prints false
+        console.log('Connection closed!');
+    });
+```
+
 ### $mockup
+
+It returns if the websocket is mocked up or not.
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new(url: 'ws://localhost:12345');
+
+    console.log(ws.$mockup()); // it prints false
+
+    var ws2 = $websocket.$new({
+        url: 'ws://localhost:54321',
+        mock: true
+    });
+
+    console.log(ws.$mockup()); // it prints true
+```
 
 ## $$mockWebsocket
 
