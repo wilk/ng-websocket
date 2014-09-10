@@ -1,7 +1,7 @@
 ng-websocket
 ============
 
-AngularJS HTML5 WebSocket powerful module
+AngularJS HTML5 WebSocket powerful wrapper module to develop with ease and fun!
 
 # Index
 
@@ -35,6 +35,7 @@ AngularJS HTML5 WebSocket powerful module
       - [$ready](#$ready)
       - [$mockup](#$mockup)
     - [$$mockWebsocket](#$$mockWebsocket)
+  - [Contribute](#contribute)
   - [License](#license)
 
 # Introduction
@@ -52,17 +53,17 @@ For each of these objects an API is available and fully documented in this docum
 
 # Requirements
 
-The only requirement needed is [AngularJS]() that you can install it via [Bower]().
+The only requirement needed is [AngularJS](https://angularjs.org/) that you can install it via [Bower](http://bower.io/).
 
 # Installation
 
-Use [Bower]() to install this module:
+Use [Bower](http://bower.io/) to install this module:
 
 ```bash
 $ bower install ng-websocket
 ```
 
-Or simply `git clone` the repo and install the dependencies with [NPM]():
+Or simply `git clone` the repo and install the dependencies with [NPM](https://www.npmjs.org/):
 
 ```bash
 $ git clone https://github.com/wilk/ngWebsocket
@@ -386,7 +387,7 @@ angular.run(function ($websocket) {
 
 # Testing
 
-This module uses [Karma]() with [Jasmine]() for unit testing, so before launching any test check out if all dependencies are correctly installed:
+This module uses [Karma](http://karma-runner.github.io/0.12/index.html) with [Jasmine](http://jasmine.github.io/) for unit testing, so before launching any test check out if all dependencies are correctly installed:
 
 ```bash
 $ npm install
@@ -427,6 +428,22 @@ angular.config(function ($websocketProvider) {
 });
 ```
 
+**Usage**
+
+```javascript
+$setup(config)
+```
+
+**Arguments**
+
+| **Param** | **Type** | **Details** |
+| config    | Object   | default ngWebsocket configuration |
+
+**Returns**
+
+| **Type** | **Details** |
+| $websocketProvider | the $websocketProvider |
+
 ## $websocket
 
 Following the API of the $websocket Service
@@ -443,6 +460,22 @@ angular.run(function ($websocket) {
 ```
 
 The url is needed because it is stored using the url as the key of an hashmap.
+
+**Usage**
+
+```javascript
+$get(url)
+```
+
+**Arguments**
+
+| **Param** | **Type** | **Details** |
+| url       | String   | the websocket url |
+
+**Returns**
+
+| **Type** | **Details** |
+| ngWebsocket | an instance of ngWebsocket or undefined |
 
 ### $new
 
@@ -478,6 +511,22 @@ angular.run(function ($websocket) {
 ```
 
 For more information see the [ngWebsocket Constructor section](#Constructor).
+
+**Usage**
+
+```javascript
+$new(url|config)
+```
+
+**Arguments**
+
+| **Param**  | **Type**      | **Details** |
+| url/config | String/Object | websocket url or a configuration set |
+
+**Returns**
+
+| **Type** | **Details** |
+| ngWebsocket | an instance of ngWebsocket |
 
 ## ngWebsocket
 
@@ -523,7 +572,7 @@ angular.run(function ($websocket) {
 
 Following the explanation of the configuration object - {Type} PropertyName (default):
 
-  - {Boolean} lazy (false): lazy initialization. A websocket can open the connection when ngWebsocket is instantiated with [$websocket.$new]() (false) or afterwards with [$open]() (false). For more information see [Features - Lazy Initialization](#lazy)
+  - {Boolean} lazy (false): lazy initialization. A websocket can open the connection when ngWebsocket is instantiated with [$websocket.$new](#$new) (false) or afterwards with [$open](#$open) (false). For more information see [Features - Lazy Initialization](#lazy)
   - {Boolean} reconnect (true): auto reconnect behaviour. A websocket can try to reopen the connection when is down (true) or stay closed (false). For more information see [Features - Auto Reconnect](#reconnect)
   - {Number} reconnectInterval (2000): auto reconnect interval. By default, a websocket try to reconnect after 2000 ms (2 seconds). For more information see [Features - Auto Reconnect](#reconnect)
   - {Boolean} enqueue (false): enqueue unsent messages. By default, a websocket discards messages when the connection is closed (false) but it can enqueue them and send afterwards the connection gets open back (true). For more information see [Features - Enqueue Unsent Messages](#enqueue)
@@ -565,6 +614,23 @@ angular.run(function ($websocket) {
 Now the websocket is listening for 'my event' event and the handler 'myHandler' will be called when that event
 is sent by the websocket server.
 
+**Usage**
+
+```javascript
+$on(event, handler)
+```
+
+**Arguments**
+
+| **Param** | **Type** | **Details** |
+| event     | String   | the event to attach a listener |
+| handler   | Function | the handler to invoke when the event is fired |
+
+**Returns**
+
+| **Type** | **Details** |
+| ngWebsocket | the ngWebsocket |
+
 ### $un
 
 Detach a handler from a specific event.
@@ -579,6 +645,23 @@ angular.run(function ($websocket) {
 ```
 
 The above websocket has not listener attached at the end of the execution.
+
+
+**Usage**
+
+```javascript
+$un(event)
+```
+
+**Arguments**
+
+| **Param** | **Type** | **Details** |
+| event     | String   | the event to detach the listener |
+
+**Returns**
+
+| **Type** | **Details** |
+| ngWebsocket | the ngWebsocket |
 
 ### $emit
 
@@ -600,6 +683,23 @@ angular.run(function ($websocket) {
 
 It's possible to send both simply (like strings and numbers) and complex data (like objects and arrays).
 
+**Usage**
+
+```javascript
+$emit(event, [data])
+```
+
+**Arguments**
+
+| **Param** | **Type** | **Details** |
+| event     | String   | the event to send |
+| data (optional) | String/Number/Object | the data to send with the event |
+
+**Returns**
+
+| **Type** | **Details** |
+| ngWebsocket | the ngWebsocket |
+
 ### $open
 
 Open the websocket connection if it's closed.
@@ -620,6 +720,17 @@ angular.run(function ($websocket, $timeout) {
     }, 5000);
 ```
 
+**Usage**
+
+```javascript
+$open()
+```
+
+**Returns**
+
+| **Type** | **Details** |
+| ngWebsocket | the ngWebsocket |
+
 ### $close
 
 It closes the websocket connection if it's open.
@@ -636,6 +747,17 @@ angular.run(function ($websocket) {
         console.log('Connection closed!');
     });
 ```
+
+**Usage**
+
+```javascript
+$close()
+```
+
+**Returns**
+
+| **Type** | **Details** |
+| ngWebsocket | the ngWebsocket |
 
 ### $status
 
@@ -660,6 +782,17 @@ angular.run(function ($websocket) {
     });
 ```
 
+**Usage**
+
+```javascript
+$status()
+```
+
+**Returns**
+
+| **Type** | **Details** |
+| Number   | a constant number representing the websocket connection readyState |
+
 ### $ready
 
 It returns if the websocket connection is open or closed.
@@ -682,6 +815,17 @@ angular.run(function ($websocket) {
     });
 ```
 
+**Usage**
+
+```javascript
+$ready()
+```
+
+**Returns**
+
+| **Type** | **Details** |
+| Boolean  | true if the connection is OPEN, false otherwise |
+
 ### $mockup
 
 It returns if the websocket is mocked up or not.
@@ -699,6 +843,17 @@ angular.run(function ($websocket) {
 
     console.log(ws.$mockup()); // it prints true
 ```
+
+**Usage**
+
+```javascript
+$mockup()
+```
+
+**Returns**
+
+| **Type** | **Details** |
+| Boolean  | true if the ngWebsocket istance is mocked up, false otherwise |
 
 ## $$mockWebsocket
 
@@ -726,6 +881,23 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - {Number} closeTimeout (1000): timeout to make the internal websocket to get closed
   - {Number} messageInterval (2000): the internal websocket sends enqueued message with this interval time
   - {Object} fixtures ({}): an object of fixtures, where the keys are the events and the values are the data to respond
+
+# Contribute
+
+Wanna contribute, fella?
+That's the right place to find useful information!
+
+How?
+
+  - improve and fix the documentation
+  - test it
+  - make some demos
+  - use it
+  - write new pieces of code
+  - optimize it
+  - find bugs
+
+And don't forget to make **pull requests**, damn it!
 
 # License
 
