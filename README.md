@@ -251,9 +251,85 @@ angular.run(function ($websocket, $timeout) {
 
 With [$websocket.$open](#$open) function, you can open the connection when you want, especially after the coffee break.
 
+**Default: disabled**
+
 ## Reconnect
 
+Ok, your websocket connection went down due to a bad wifi connection and you don't want to make another connection
+manually, right?
+So, what about an automated feature that do this for you?
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        reconnect: true // it will reconnect after 2 seconds
+    });
+
+    ws.$on('$open', function () {
+        console.log('Here we are and I\'m pretty sure to get back here for another time at least!');
+      })
+      .$on('$close', function () {
+        console.log('Got close, damn you silly wifi!');
+      });
+});
+```
+
+With this feature, if the connection goes down, it will open again after 2 seconds by default.
+If you need to get the connection back in fewer time, just use the **reconnectInterval** time slice:
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        reconnect: true,
+        reconnectInterval: 500 // it will reconnect after 0.5 seconds
+    });
+
+    ws.$on('$open', function () {
+        console.log('Here we are and I\'m pretty sure to get back here for another time at least!');
+      })
+      .$on('$close', function () {
+        console.log('Got close, damn you silly wifi!');
+      });
+});
+```
+
+**Pay attention, good sir**: if you close the ngWebsocket with the [**$close**](#$close) method, it won't get the connection back
+until the [**$open**](#$open) is invoked!
+
+**Default: enabled**
+
 ## Enqueue
+
+From great powers come great responsability. Keep this in mind while reading this feature.
+
+Sometimes, it would be useful if someone save our websocket communication, especially when the connection is down.
+With this powerful feature, it's possible to store every unsent message in a queue and then flush them just the connection get up again.
+
+How? Enabling enqueue feature, of course!
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        lazy: true,
+        enqueue: true
+    });
+
+    ws.$emit('dude event', 'hi dude!'); // this message couldn't be forwarded because of the lazy property (the websocket is still closed)
+
+    ws.$on('$open', function () {
+        console.log('I\'m sure the above message gets sent before this log is printed in the console ;)');
+    });
+
+    ws.$open(); // when the websocket gets open, flushes every message stored in the internal queue
+});
+```
+
+**BUT** this means that each message is stored into a memory queue and it can get really big, especially if your application sends many messages in a short time slice.
+
+**Default: disabled**
 
 ## Mock
 
