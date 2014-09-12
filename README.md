@@ -369,7 +369,9 @@ angular.run(function ($websocket) {
         url: 'ws://localhost:12345',
         mock: {
             fixtures: {
-                hi: 'dude, this is a custom message!'
+                hi: {
+                    data: 'dude, this is a custom message!'
+                }
             }
         }
     });
@@ -908,6 +910,45 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - **{Number} closeTimeout (1000)**: timeout to make the internal websocket to get closed
   - **{Number} messageInterval (2000)**: the internal websocket sends enqueued message with this interval time
   - **{Object} fixtures ({})**: an object of fixtures, where the keys are the events and the values are the data to respond
+
+Fixtures can mock both custom events and data:
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        mock: {
+            fixtures: {
+                'mock data': {
+                    data: {
+                        hello: 'world'
+                    }
+                },
+                'mock data and event': {
+                    event: 'custom event',
+                    data: {
+                        hello: 'mocked world'
+                    }
+                }
+            }
+        }
+    });
+
+    ws.$on('$open', function () {
+        ws.$emit('parrot event', 'parrot data')
+          .$emit('mock data')
+          .$emit('mock data and event');
+      })
+      .$on('parrot event', function (message) {
+        console.log(message); // it prints 'parrot data'
+      })
+      .$on('mock data', function (message) {
+        console.log(message); // it prints '{hello: 'world'}'
+      })
+      .$on('custom event', function (message) {
+        console.log(message); // it prints '{hello: 'mocked world'}'
+      });
+```
 
 # Contribute
 
