@@ -159,9 +159,13 @@ angular
                 Array.prototype.push.apply(args, arguments);
 
                 var event = args.shift(),
-                    handler = me.$$eventMap[event];
+                    handlers = me.$$eventMap[event];
 
-                if (typeof handler === 'function') handler.apply(me, args);
+                if (typeof handlers !== 'undefined') {
+                    for (var i = 0; i < handlers.length; i++) {
+                        if (typeof handlers[i] === 'function') handlers[i].apply(me, args);
+                    }
+                }
             };
 
             me.$$init = function (cfg) {
@@ -227,18 +231,26 @@ angular
                 });
             };*/
 
-            me.$on = function (event, handler) {
-                if (typeof event !== 'string' || typeof handler !== 'function') throw new Error('$on accept two parameters: a String and a Function');
+            me.$on = function () {
+                var handlers = [];
 
-                me.$$eventMap[event] = handler;
+                Array.prototype.push.apply(handlers, arguments);
+
+                var event = handlers.shift();
+                if (typeof event !== 'string' || handlers.length === 0) throw new Error('$on accept two parameters at least: a String and a Function or an array of Functions');
+
+                me.$$eventMap[event] = me.$$eventMap[event] || [];
+                for (var i = 0; i < handlers.length; i++) {
+                    me.$$eventMap[event].push(handlers[i]);
+                }
 
                 return me;
             };
 
             me.$un = function (event) {
-                if (typeof event !== 'string') throw new Error('$un accept just a String');
+                if (typeof event !== 'string') throw new Error('$un needs a String representing an event.');
 
-                delete me.$$eventMap[event];
+                if (typeof me.$$eventMap[event] !== 'undefined') delete me.$$eventMap[event];
 
                 return me;
             };
