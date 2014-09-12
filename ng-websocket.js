@@ -104,13 +104,13 @@ angular
                             me.close();
                             break;
                         default:
-                            var fixture = fixtures[msgObj.event];
-
-                            // Overwrite outgoing data with fixtures
-                            if (fixture) {
-                                msgObj.data = fixture;
-                                message = JSON.stringify(msgObj);
+                            // Check for a custom response
+                            if (typeof fixtures[msgObj.event] !== 'undefined') {
+                                msgObj.data = fixtures[msgObj.event].data || msgObj.data;
+                                msgObj.event = fixtures[msgObj.event].event || msgObj.event;
                             }
+
+                            message = JSON.stringify(msgObj);
 
                             me.onmessage({
                                 data: message
