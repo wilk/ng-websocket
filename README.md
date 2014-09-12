@@ -607,31 +607,41 @@ The other events are custom events, setup by the user itself.
 
 ### $on
 
-Attach a handler to a specific event.
+Attach one or more handlers to a specific event.
 
 ```javascript
 angular.run(function ($websocket) {
     var ws = $websocket.$new('ws://localhost:12345');
 
+    // Single event handler
     ws.$on('my event', function myHandler () {...});
+
+    // Different event handlers
+    ws.$on('another event', myHandler, mySecondHandler, myThirdHandler);
+
+    // Different chained event handlers
+    ws.$on('third event', function myHandler () {...})
+      .$on('third event', function mySecondHandler () {...})
+      .$on('third event', function myThirdHandler () {...});
 });
 ```
 
 Now the websocket is listening for 'my event' event and the handler 'myHandler' will be called when that event
-is sent by the websocket server.
+is sent by the websocket server. The same thing happens for the other two cases: each event handler is called
+one by one, starting from the first one, ending with the last one.
 
 **Usage**
 
 ```javascript
-$on(event, handler)
+$on(event, handler|handlers)
 ```
 
 **Arguments**
 
 | **Param** | **Type** | **Details** |
 | --------- | -------- | ----------- |
-| event     | String   | the event to attach a listener |
-| handler   | Function | the handler to invoke when the event is fired |
+| event | String | the event to attach a listener |
+| handler/handlers | Function/Function[] | one or more handlers to invoke when the event is fired up |
 
 **Returns**
 
