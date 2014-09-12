@@ -162,6 +162,32 @@ describe('Testing ng-websocket', function () {
             });
         });
 
+        it('should set a list of listeners on $close general event', function (done) {
+            var listeners = 3,
+                counter = 0;
+
+            ws.$close();
+
+            ws.$on('$close', function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                counter++;
+              })
+              .$on('$close', function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                counter++;
+              })
+              .$on('$close', function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                counter++;
+
+                expect(counter).toEqual(listeners);
+                done();
+              });
+        });
+
         it('should unset a listener on $close general event', function (done) {
             ws.$close();
 
