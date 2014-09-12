@@ -379,9 +379,17 @@ describe('Testing ng-websocket', function () {
                 url: 'ws://localhost:12345',
                 mock: {
                     fixtures: {
+                        'fixture event': {
+                            event: 'fixture response event',
+                            data: {
+                                fixture: 'response data'
+                            }
+                        },
                         'custom event': {
-                            hello: 'world',
-                            number: 10
+                            data: {
+                                hello: 'world',
+                                number: 10
+                            }
                         }
                     }
                 }
@@ -405,6 +413,16 @@ describe('Testing ng-websocket', function () {
             });
 
             ws.$emit('custom event');
+        });
+
+        it('should responde with fixtures data on a fixture event', function (done) {
+            ws.$on('fixture response event', function (msg) {
+                expect(msg).toBeDefined();
+                expect(msg.fixture).toEqual('response data');
+                done();
+            });
+
+            ws.$emit('fixture event');
         });
     });
 
