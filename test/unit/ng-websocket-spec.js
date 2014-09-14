@@ -1,13 +1,14 @@
 'use strict';
 
-var $websocket;
+var $websocket, $httpBackend;
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
 describe('Testing ng-websocket', function () {
     beforeEach(module('ngWebsocket'));
-    beforeEach(inject(function (_$websocket_) {
+    beforeEach(inject(function (_$websocket_, _$httpBackend_) {
         $websocket = _$websocket_;
+        $httpBackend = _$httpBackend_;
     }));
 
     describe('Testing an offline $websocket', function () {
@@ -423,6 +424,45 @@ describe('Testing ng-websocket', function () {
             });
 
             ws.$emit('fixture event');
+        });
+    });
+
+    describe('Testing mock remote fixtures feature', function () {
+        var ws;
+
+        it('should make an HTTP GET request and retrieve fixtures', function (done) {
+            $httpBackend.when('GET', '/fixtures.json')
+                .respond({
+                    hello: {
+                        event: 'world',
+                        data: 'hi there'
+                    }
+                });
+            $httpBackend.expectGET('/fixtures.json');
+
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: {
+                    fixtures: '/fixtures.json'
+                }
+            });
+
+            ws.$on('$open', function () {
+                ws.$emit('hello');
+              })
+              .$on('world', function (message) {
+                expect(message).toEqual('hi there');
+
+                done();
+              });
+
+            $httpBackend.flush();
+        });
+
+        afterEach(function () {
+            ws.$close();
+            $httpBackend.verifyNoOutstandingExpectation();
+            $httpBackend.verifyNoOutstandingRequest();
         });
     });
 
