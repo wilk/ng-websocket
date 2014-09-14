@@ -41,10 +41,14 @@ angular
 
                 if (typeof cfg === 'string') cfg = {url: cfg};
 
-                var wsCfg = angular.extend({}, wss.$$config, cfg);
+                // If the websocket already exists, return that instance
+                var ws = wss.$get(cfg.url);
+                if (typeof ws === 'undefined') {
+                    var wsCfg = angular.extend({}, wss.$$config, cfg);
 
-                var ws = new $websocket(wsCfg);
-                wss.$$websocketList[wsCfg.url] = ws;
+                    ws = new $websocket(wsCfg);
+                    wss.$$websocketList[wsCfg.url] = ws;
+                }
 
                 return ws;
             };
