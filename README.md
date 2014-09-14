@@ -195,10 +195,14 @@ angular.module('MyIndipendentCoolWebApp', ['ngWebsocket'])
             url: 'ws://localhost:12345',
             mock: {
                 fixtures: {
-                    'custom event': 'websocket server mocked response',
+                    'custom event': {
+                        data: 'websocket server mocked response'
+                    },
                     'another event': {
-                        damn: 'dude',
-                        that: 'is awesome!'
+                        data: {
+                            damn: 'dude',
+                            that: 'is awesome!'
+                        }
                     }
                 }
             }
