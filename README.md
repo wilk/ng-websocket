@@ -913,7 +913,7 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - **{Number} openTimeout (500)**: timeout to make the internal websocket to get open
   - **{Number} closeTimeout (1000)**: timeout to make the internal websocket to get closed
   - **{Number} messageInterval (2000)**: the internal websocket sends enqueued message with this interval time
-  - **{Object} fixtures ({})**: an object of fixtures, where the keys are the events and the values are the data to respond
+  - **{Object/String} fixtures ({})**: an object of fixtures, where the keys are the events and the values are the data to respond, or an url to retrieve remote fixtures via HTTP
 
 Fixtures can mock both custom events and data:
 
@@ -952,6 +952,21 @@ angular.run(function ($websocket) {
       .$on('custom event', function (message) {
         console.log(message); // it prints '{hello: 'mocked world'}'
       });
+```
+
+Example with an url:
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+            url: 'ws://localhost:12345',
+            mock: {
+                fixtures: '/fixtures.json' // fixtures are located in a file or calculated at run-time by the web server
+            }
+        });
+    
+    // Now you're ready to use fixtures because the websocket will be available only when the fixtures are loaded
+});
 ```
 
 # Contribute
