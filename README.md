@@ -915,7 +915,21 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - **{Number} messageInterval (2000)**: the internal websocket sends enqueued message with this interval time
   - **{Object/String} fixtures ({})**: an object of fixtures, where the keys are the events and the values are the data to respond, or an url to retrieve remote fixtures via HTTP
 
-Fixtures can mock both custom events and data:
+Fixtures can mock both custom events and data.
+They can be added as a static object with the following structure:
+
+```javascript
+fixtures: {
+    'incoming event name': {
+        event: 'outgoing event name',
+        data: 'response data'
+    }
+}
+```
+
+The *incoming event name* is the event fired by the websocket while the *outgoing event name* is the one sent by the mocked webserver.
+So, it be useful to map events with a custom response.
+By default, the mock feature acts like a parrot server, responding with the same data on the same received event.
 
 ```javascript
 angular.run(function ($websocket) {
@@ -954,7 +968,8 @@ angular.run(function ($websocket) {
       });
 ```
 
-Example with an url:
+Fixtures can be loaded through an HTTP request.
+In fact, it be useful to have those in a JSON file or created by the webserver:
 
 ```javascript
 angular.run(function ($websocket) {
