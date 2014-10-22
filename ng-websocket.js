@@ -24,7 +24,8 @@ angular
             reconnect: true,
             reconnectInterval: 2000,
             mock: false,
-            enqueue: false
+            enqueue: false,
+            protocols: undefined
         };
 
         wsp.$setup = function (cfg) {
@@ -52,10 +53,12 @@ angular
                     return wss.$$websocketList[url];
                 };
 
-                wss.$new = function (cfg) {
+                wss.$new = function (cfg, protocols) {
                     cfg = cfg || {};
 
                     if (typeof cfg === 'string') cfg = {url: cfg};
+
+                    if (typeof protocols !== 'undefined') cfg.protocols = protocols;
 
                     // If the websocket already exists, return that instance
                     var ws = wss.$get(cfg.url);
@@ -185,7 +188,8 @@ angular
                     reconnect: true,
                     reconnectInterval: 2000,
                     enqueue: false,
-                    mock: false
+                    mock: false,
+                    protocols: undefined
                 };
 
                 me.$$fireEvent = function () {
@@ -204,7 +208,7 @@ angular
                 };
 
                 me.$$init = function (cfg) {
-                    me.$$ws = cfg.mock ? new $$mockWebsocket(cfg.mock) : new WebSocket(cfg.url);
+                    me.$$ws = cfg.mock ? new $$mockWebsocket(cfg.mock) : new WebSocket(cfg.url, cfg.protocols);
 
                     me.$$ws.onmessage = function (message) {
                         try {

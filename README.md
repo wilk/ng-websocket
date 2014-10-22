@@ -553,6 +553,8 @@ Following the API in detail.
 The constructor of the ngWebsocket accepts two kind of parameters:
 
   - String: the url starting with the WebSocket schema (ws:// or wss://)
+  plus an optional String/String array containing the protocols (this matches
+  the WebSocket constructor API)
   - Object: a configuration containing the websocket url
 
 The url is a requirement to create a new ngWebsocket.
@@ -563,7 +565,7 @@ Example of a basic instantiation:
 
 ```javascript
 angular.run(function ($websocket) {
-    var ws = $websocket.$new('ws://localhost:12345');
+    var ws = $websocket.$new('ws://localhost:12345', ['binary', 'base64']);
 });
 ```
 
@@ -577,7 +579,8 @@ angular.run(function ($websocket) {
         reconnect: true,
         reconnectInterval: 2000,
         enqueue: false,
-        mock: false
+        mock: false,
+        protocols: ['binary', 'base64']
     });
 });
 ```
@@ -589,6 +592,9 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - **{Number} reconnectInterval (2000)**: auto reconnect interval. By default, a websocket try to reconnect after 2000 ms (2 seconds). For more information see [Features - Auto Reconnect](#reconnect)
   - **{Boolean} enqueue (false)**: enqueue unsent messages. By default, a websocket discards messages when the connection is closed (false) but it can enqueue them and send afterwards the connection gets open back (true). For more information see [Features - Enqueue Unsent Messages](#enqueue)
   - **{Boolean/Object} mock (false)**: mock a websocket server. By default, a websocket run only if the webserver socket is listening (false) but it can be useful to mock the backend to make the websocket working (true). For more information see [Features - Mock Websocket Server](#mock)
+  - **{String/String array} (undefined)**: Either a single protocol string
+  or an array of protocol strings. This is the same as the WebSocket 
+  protocols argument.
 
 ### Constants
 
