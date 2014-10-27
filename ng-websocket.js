@@ -9,13 +9,13 @@
  */
 angular
     .module('ngWebsocket', [])
-    /**
-     * @ngdoc provider
-     * @name $websocketProvider
-     * @module ngWebsocket
-     * @description
-     * HTML5 WebSocket provider for AngularJS
-     */
+/**
+ * @ngdoc provider
+ * @name $websocketProvider
+ * @module ngWebsocket
+ * @description
+ * HTML5 WebSocket provider for AngularJS
+ */
     .provider('$websocket', function () {
         var wsp = this;
 
@@ -243,7 +243,10 @@ angular
                         // Activate the reconnect task
                         if (me.$$config.reconnect) {
                             me.$$reconnectTask = setInterval(function () {
-                                if (me.$status() === me.$CLOSED) me.$open();
+                                if (me.$status() === me.$CLOSED && me.$$config.reconnect)
+                                    me.$open();
+                                else
+                                    clearInterval(me.$$reconnectTask);
                             }, me.$$config.reconnectInterval);
                         }
 
