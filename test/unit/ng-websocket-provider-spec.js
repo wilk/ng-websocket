@@ -1,6 +1,6 @@
 'use strict';
 
-var $websocketProvider;
+var $websocketProvider, $http;
 
 describe('Testing ng-websocket-provider', function () {
     beforeEach(function () {
@@ -12,19 +12,22 @@ describe('Testing ng-websocket-provider', function () {
 
         module('ngWebsocket', 'test');
 
-        inject(function () {});
+        inject(function (_$http_) {
+            $http = _$http_;
+        });
     });
 
     describe('Testing the provider', function () {
         it('should be defined', function () {
             expect($websocketProvider).toBeDefined();
             expect($websocketProvider.$get).toBeDefined();
+            expect($websocketProvider.$get.length).toBeGreaterThan(0);
         });
     });
 
     describe('Testing $get operator', function () {
         it('should return a ng-websocket service', function () {
-            var wsm = $websocketProvider.$get();
+            var wsm = $websocketProvider.$get[$websocketProvider.$get.length - 1]($http);
 
             expect(wsm).toBeDefined();
             expect(wsm.$new).toBeDefined();
@@ -37,7 +40,7 @@ describe('Testing ng-websocket-provider', function () {
                 mock: true
             });
 
-            var $websocket = $websocketProvider.$get(),
+            var $websocket = $websocketProvider.$get[$websocketProvider.$get.length - 1]($http),
                 ws = $websocket.$new('ws://localhost:12345'),
                 ws2 = $websocket.$new('ws://localhost:44444');
 
