@@ -34,7 +34,7 @@ angular
             return wsp;
         };
 
-        wsp.$get = function ($http) {
+        wsp.$get = ['$http', function ($http) {
             /**
              * @ngdoc service
              * @name $websocket
@@ -351,5 +351,5 @@ angular
             }
 
             return new $websocketService(wsp.$$config);
-        };
+        }];
     });
