@@ -16,7 +16,8 @@
             reconnect: true,
             reconnectInterval: 2000,
             mock: false,
-            enqueue: false
+            enqueue: false,
+            protocols: []
         };
 
         wsp.$setup = function (cfg) {
@@ -51,7 +52,16 @@
         wss.$new = function (cfg) {
             cfg = cfg || {};
 
-            if (typeof cfg === 'string') cfg = {url: cfg};
+            // Url or url + protocols initialization
+            if (typeof cfg === 'string') {
+                cfg = {url: cfg};
+
+                // url + protocols
+                if (arguments.length > 1) {
+                    if (typeof arguments[1] === 'string' && arguments[1].length > 0) cfg.protocols = [arguments[1]];
+                    else if (typeof arguments[1] === 'object' && arguments[1].length > 0) cfg.protocols = arguments[1];
+                }
+            }
 
             // If the websocket already exists, return that instance
             var ws = wss.$get(cfg.url);
@@ -89,7 +99,8 @@
             reconnect: true,
             reconnectInterval: 2000,
             enqueue: false,
-            mock: false
+            mock: false,
+            protocols: []
         };
 
         me.$$fireEvent = function () {
@@ -345,9 +356,6 @@
 
         return me;
     }
-
-
-
 
     /**
      * @ngdoc module
