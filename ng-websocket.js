@@ -17,7 +17,7 @@
             reconnectInterval: 2000,
             mock: false,
             enqueue: false,
-            protocols: []
+            protocols: null
         };
 
         wsp.$setup = function (cfg) {
@@ -100,7 +100,7 @@
             reconnectInterval: 2000,
             enqueue: false,
             mock: false,
-            protocols: []
+            protocols: null
         };
 
         me.$$fireEvent = function () {
@@ -119,7 +119,7 @@
         };
 
         me.$$init = function (cfg) {
-            me.$$ws = cfg.mock ? new $$mockWebsocket(cfg.mock, $http) : new WebSocket(cfg.url);
+            me.$$ws = cfg.mock ? new $$mockWebsocket(cfg.mock, $http) : new WebSocket(cfg.url, cfg.protocols);
 
             me.$$ws.onmessage = function (message) {
                 try {
