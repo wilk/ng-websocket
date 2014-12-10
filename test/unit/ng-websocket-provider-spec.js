@@ -1,6 +1,6 @@
 'use strict';
 
-var $websocketProvider, $http;
+var $websocketProvider, $http, $timeout, $interval;
 
 describe('Testing ng-websocket-provider', function () {
     beforeEach(function () {
@@ -12,8 +12,10 @@ describe('Testing ng-websocket-provider', function () {
 
         module('ngWebsocket', 'test');
 
-        inject(function (_$http_) {
+        inject(function (_$http_, _$timeout_, _$interval_) {
             $http = _$http_;
+			$timeout = _$timeout_;
+			$interval = _$interval_;
         });
     });
 
@@ -40,7 +42,7 @@ describe('Testing ng-websocket-provider', function () {
                 mock: true
             });
 
-            var $websocket = $websocketProvider.$get[$websocketProvider.$get.length - 1]($http),
+            var $websocket = $websocketProvider.$get[$websocketProvider.$get.length - 1]($http,$timeout,$interval),
                 ws = $websocket.$new('ws://localhost:12345'),
                 ws2 = $websocket.$new('ws://localhost:44444');
 
