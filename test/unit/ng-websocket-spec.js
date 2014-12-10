@@ -1,14 +1,16 @@
 'use strict';
 
-var $websocket, $httpBackend;
+var $websocket, $httpBackend, $timeout, $interval;
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
 
 describe('Testing ng-websocket', function () {
     beforeEach(module('ngWebsocket'));
-    beforeEach(inject(function (_$websocket_, _$httpBackend_) {
+    beforeEach(inject(function (_$websocket_, _$httpBackend_, _$timeout_, _$interval_) {
         $websocket = _$websocket_;
         $httpBackend = _$httpBackend_;
+		$timeout = _$timeout_;
+		$interval = _$interval_;
     }));
 
     describe('Testing an offline $websocket', function () {
@@ -57,6 +59,8 @@ describe('Testing ng-websocket', function () {
             ws.$on('$open', function () {
                 done();
             });
+			$timeout.flush();
+			$interval.flush();
         });
 
         afterEach(function () {
@@ -107,6 +111,8 @@ describe('Testing ng-websocket', function () {
             ws.$on('$open', function () {
                 done();
             });
+			$timeout.flush();
+			$interval.flush();
         });
 
         afterEach(function () {
@@ -122,6 +128,7 @@ describe('Testing ng-websocket', function () {
 
                 done();
             });
+			$interval.flush(2001);
         });
 
         it('should have received the same message on the same event', function (done) {
@@ -132,6 +139,7 @@ describe('Testing ng-websocket', function () {
 
                 done();
             });
+			$interval.flush(2001);
         });
     });
 
@@ -147,6 +155,8 @@ describe('Testing ng-websocket', function () {
             ws.$on('$open', function () {
                 done();
             });
+			$timeout.flush();
+			$interval.flush();
         });
 
         afterEach(function () {
@@ -155,12 +165,13 @@ describe('Testing ng-websocket', function () {
 
         it('should set a listener on $close general event', function (done) {
             ws.$close();
-
+			
             ws.$on('$close', function () {
                 expect(ws.$status()).toEqual(ws.$CLOSED);
-
                 done();
             });
+			$timeout.flush();
+			$interval.flush(2001);
         });
 
         it('should set a list of listeners on $close general event', function (done) {
@@ -185,8 +196,11 @@ describe('Testing ng-websocket', function () {
                 counter++;
 
                 expect(counter).toEqual(listeners);
+				
                 done();
               });
+			$timeout.flush();
+			$interval.flush(2001);
         });
 
         it('should unset a listener on $close general event', function (done) {
@@ -197,12 +211,12 @@ describe('Testing ng-websocket', function () {
                 noUpdate = false;
             });
 
-            setTimeout(function () {
-                expect(noUpdate).toBeTruthy();
-                done();
-            }, 4000);
-
             ws.$un('$close');
+			$timeout.flush();
+			$interval.flush(2001);
+			
+			expect(noUpdate).toBeTruthy();
+			done();
         });
 
         it('should emit a custom event', function (done) {
@@ -210,9 +224,10 @@ describe('Testing ng-websocket', function () {
 
             ws.$on('custom event', function (message) {
                 expect(message).toEqual('hello world');
-
+				
                 done();
             });
+			$interval.flush(2001);
         });
     });
 
@@ -273,6 +288,8 @@ describe('Testing ng-websocket', function () {
             ws.$on('$open', function () {
                 done();
             });
+			$timeout.flush();
+			$interval.flush();
         });
 
         afterEach(function () {
@@ -306,6 +323,8 @@ describe('Testing ng-websocket', function () {
                 expect(message.data).toEqual('hello lazy world');
                 done();
             });
+			
+			$interval.flush(2001);
         });
     });
 
@@ -329,20 +348,28 @@ describe('Testing ng-websocket', function () {
             ws.$close();
         });
 
-        it('should enqueue the message and flush it when is ready', function (done) {
+        it('should enqueue the message and flush it when is ready', function () {
+			var done = false;
             ws.$on('my event', function (msg) {
                 expect(ws.$ready()).toBeTruthy();
                 expect(msg).toEqual('hello world');
-                done();
+                done = true;
             });
 
             ws.$emit('my event', 'hello world');
-            setTimeout(function () {
-                ws.$open();
-            }, 2500);
+			
+			$interval.flush(501);
+			expect(done).toBe(false);
+			
+			ws.$open();
+			$timeout.flush();
+			$interval.flush(501);
+			
+			expect(done).toBe(true);
         });
 
-        it('should enqueue every message and flush all of them when is ready', function (done) {
+        it('should enqueue every message and flush all of them when is ready', function () {
+			var done = false;
             var counter = 5,
                 eventCounter = 0;
 
@@ -359,16 +386,21 @@ describe('Testing ng-websocket', function () {
 
                 expect(eventCounter).toEqual(counter);
 
-                done();
+                done = true;
             });
 
             for (var i = 0; i < counter; i++) ws.$emit('my event', 'Data #' + i);
 
             ws.$emit('another event', 'hello world');
+			
+			$interval.flush(501);
+			expect(done).toBe(false);
 
-            setTimeout(function () {
-                ws.$open();
-            }, 500);
+            ws.$open();
+			$timeout.flush();
+			$interval.flush(3001);
+			
+			expect(done).toBe(true);
         });
     });
 
@@ -399,13 +431,15 @@ describe('Testing ng-websocket', function () {
             ws.$on('$open', function () {
                 done();
             });
+			$timeout.flush();
+			$interval.flush();
         });
 
         afterEach(function () {
             ws.$close();
         });
 
-        it('should responde with fixtures data', function (done) {
+        it('should respond with fixtures data', function (done) {
             ws.$on('custom event', function (msg) {
                 expect(msg).toBeDefined();
                 expect(msg.hello).toEqual('world');
@@ -414,9 +448,11 @@ describe('Testing ng-websocket', function () {
             });
 
             ws.$emit('custom event');
+			
+			$interval.flush(2001);
         });
 
-        it('should responde with fixtures data on a fixture event', function (done) {
+        it('should respond with fixtures data on a fixture event', function (done) {
             ws.$on('fixture response event', function (msg) {
                 expect(msg).toBeDefined();
                 expect(msg.fixture).toEqual('response data');
@@ -424,10 +460,12 @@ describe('Testing ng-websocket', function () {
             });
 
             ws.$emit('fixture event');
+			
+			$interval.flush(2001);
         });
     });
 
-    describe('Testing mock remote fixtures feature', function () {
+    xdescribe('Testing mock remote fixtures feature', function () {
         var ws;
 
         it('should make an HTTP GET request and retrieve fixtures', function (done) {
@@ -455,6 +493,9 @@ describe('Testing ng-websocket', function () {
 
                 done();
               });
+			
+			$timeout.flush();
+			$interval.flush(2001);
 
             $httpBackend.flush();
         });
