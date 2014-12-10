@@ -27,8 +27,8 @@
             return wsp;
         };
 
-        wsp.$get = ['$http', function ($http) {
-            return new $websocketService(wsp.$$config, $http);
+        wsp.$get = ['$http', '$timeout', '$interval', function ($http, $timeout, $interval) {
+            return new $websocketService(wsp.$$config, $http, $timeout, $interval);
         }];
     }
 
@@ -39,7 +39,7 @@
      * @description
      * HTML5 Websocket service for AngularJS
      */
-    function $websocketService (cfg, $http) {
+    function $websocketService (cfg, $http, $timeout, $interval) {
         var wss = this;
 
         wss.$$websocketList = {};
@@ -68,7 +68,7 @@
             if (typeof ws === 'undefined') {
                 var wsCfg = angular.extend({}, wss.$$config, cfg);
 
-                ws = new $websocket(wsCfg, $http);
+                ws = new $websocket(wsCfg, $http, $timeout, $interval);
                 wss.$$websocketList[wsCfg.url] = ws;
             }
 
@@ -83,7 +83,7 @@
      * @description
      * HTML5 Websocket wrapper class for AngularJS
      */
-    function $websocket (cfg, $http) {
+    function $websocket (cfg, $http, $timeout, $interval) {
         var me = this;
 
         if (typeof cfg === 'undefined' || (typeof cfg === 'object' && typeof cfg.url === 'undefined')) throw new Error('An url must be specified for WebSocket');
@@ -119,7 +119,7 @@
         };
 
         me.$$init = function (cfg) {
-            me.$$ws = cfg.mock ? new $$mockWebsocket(cfg.mock, $http) : new WebSocket(cfg.url, cfg.protocols);
+            me.$$ws = cfg.mock ? new $$mockWebsocket(cfg.mock, $http, $timeout, $interval) : new WebSocket(cfg.url, cfg.protocols);
 
             me.$$ws.onmessage = function (message) {
                 try {
@@ -265,7 +265,7 @@
         return me;
     }
 
-    function $$mockWebsocket (cfg, $http) {
+    function $$mockWebsocket (cfg, $http, $timeout, $interval) {
         cfg = cfg || {};
 
         var me = this,
@@ -294,7 +294,7 @@
             if (me.readyState === me.OPEN) {
                 me.readyState = me.CLOSING;
 
-                setTimeout(function () {
+                $timeout(function () {
                     me.readyState = me.CLOSED;
 
                     me.onclose();
@@ -309,7 +309,7 @@
         me.onopen = function () {};
         me.onclose = function () {};
 
-        setInterval(function () {
+        $interval(function () {
             if (messageQueue.length > 0) {
                 var message = messageQueue.shift(),
                     msgObj = JSON.parse(message);
@@ -340,7 +340,7 @@
 
             fixtures = fixs;
 
-            setTimeout(function () {
+            $timeout(function () {
                 me.readyState = me.OPEN;
                 me.onopen();
             }, openTimeout);
