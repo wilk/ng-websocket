@@ -260,16 +260,18 @@ describe('Testing ng-websocket', function () {
         it('should unset a listener for a client and keep a listener for another client on $close general event', function (done) {
             ws.$close();
 
-            var noUpdate = true;
+            var noUpdate1 = true;
+            var noUpdate2 = true;
             ws.$on({event: '$close', client: 'client1'}, function () {
-                noUpdate = false;
+                noUpdate1 = false;
             });
             ws.$on({event: '$close', client: 'client2'}, function () {
-                noUpdate = false;
+                noUpdate2 = false;
             });
 
             setTimeout(function () {
-                expect(noUpdate).toBeFalsy();
+                expect(noUpdate1).toBeTruthy();
+                expect(noUpdate2).toBeFalsy();
                 done();
             }, 4000);
 
