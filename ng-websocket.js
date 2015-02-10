@@ -165,7 +165,7 @@
 
             me.$$ws.onclose = function () {
                 // Activate the reconnect task
-                if (me.$$config.reconnect) {
+                if (me.$$config.reconnect && !me.$$reconnectTask) {
                     me.$$reconnectTask = setInterval(function () {
                         if (me.$status() === me.$CLOSED) me.$open();
                     }, me.$$config.reconnectInterval);
