@@ -183,6 +183,33 @@ angular.module('MyCoolChainedWebApp', ['ngWebsocket'])
           });
     });
 ```
+Want to send a binary message?  Set the 'binary' parameter to true.
+
+```javascript
+'use strict';
+
+angular.module('MyCoolChainedWebApp', ['ngWebsocket'])
+    .run(function ($websocket) {
+        var ws = $websocket.$new('ws://localhost:12345')
+          .$on('$open', function () {
+            console.log('Oh my gosh, websocket is really open! Fukken awesome!');
+
+            var data = new Uint8Array([21,31]);
+
+            ws.$emit('ping', 'hi listening websocket server') // send a message to the websocket server
+              .$emit('pong', data, true);
+          })
+          .$on('pong', function (data) {
+            console.log('The websocket server has sent the following data:');
+            console.log(data);
+
+            ws.$close();
+          })
+          .$on('$close', function () {
+            console.log('Noooooooooou, I want to have more fun with ngWebsocket, damn it!');
+          });
+    });
+```
 
 Your back-end team is lazy? No problem: we can do it on our own!
 
