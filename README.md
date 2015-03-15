@@ -196,12 +196,19 @@ angular.module('MyCoolChainedWebApp', ['ngWebsocket'])
 
             var data = new Uint8Array([21,31]);
 
+            ws.binaryType = 'arraybuffer';
+
             ws.$emit('ping', 'hi listening websocket server') // send a message to the websocket server
               .$emit('pong', data, true);
           })
           .$on('pong', function (data) {
             console.log('The websocket server has sent the following data:');
-            console.log(data);
+
+            if (data instanceof ArrayBuffer) {
+                console.log('A binary message of length', data.toArrayBuffer().byteLength;
+            } else {
+                console.log(data);
+            }
 
             ws.$close();
           })
