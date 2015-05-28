@@ -502,6 +502,18 @@ angular.run(function ($websocket) {
 ```
 
 A new instance is returned and the internal WebSocket has already started the connection with the websocket server on the backend.
+By default, once created connections will be reused. If you want to force the creation of a new connection, use forceNewConnection:
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345'),
+        forceNewConnection: true
+    });
+});
+```
+
+Bear in mind that the previous websocket will not close, so be careful with this parameter.
 
 **object**
 

@@ -49,6 +49,10 @@
             return wss.$$websocketList[url];
         };
 
+        wss.$remove = function (url) {
+            delete wss.$$websocketList[url];
+        };
+
         wss.$new = function (cfg) {
             cfg = cfg || {};
 
@@ -61,6 +65,15 @@
                     if (typeof arguments[1] === 'string' && arguments[1].length > 0) cfg.protocols = [arguments[1]];
                     else if (typeof arguments[1] === 'object' && arguments[1].length > 0) cfg.protocols = arguments[1];
                 }
+            } else if(typeof cfg === 'object') {
+                if (cfg.forceNewConnection) {
+                    wss.$remove(cfg.url);
+                }
+
+                cfg = {
+                    url: cfg.url,
+                    forceNewConnection: cfg.forceNewConnection ? cfg.forceNewConnection : false
+                };
             }
 
             // If the websocket already exists, return that instance
