@@ -391,6 +391,26 @@ angular.run(function ($websocket) {
 
 **Default: disabled**
 
+## Force New
+
+In some cases you may not want to reuse an existing websocket connection and need to create a new one.
+By default, creating a new websocket with the same url will try to reuse a before created websocket connection, even if it is closed.
+You can force a new connection using this flag.
+
+```javascript
+angular.run(function ($websocket) {
+    var ws = $websocket.$new({
+        url: 'ws://localhost:12345',
+        forceNew: true
+    });
+});
+```
+
+Bear in mind that this will open a new connection to the same websocket, no matter if one exists already. Make sure to close
+your old websocket correctly and timely.
+
+** Default: false **
+
 # Testing
 
 This module uses [Karma](http://karma-runner.github.io/0.12/index.html) with [Jasmine](http://jasmine.github.io/) for unit testing, so before launching any test check out if all dependencies are correctly installed:
@@ -502,18 +522,6 @@ angular.run(function ($websocket) {
 ```
 
 A new instance is returned and the internal WebSocket has already started the connection with the websocket server on the backend.
-By default, once created connections will be reused. If you want to force the creation of a new connection, use forceNewConnection:
-
-```javascript
-angular.run(function ($websocket) {
-    var ws = $websocket.$new({
-        url: 'ws://localhost:12345'),
-        forceNewConnection: true
-    });
-});
-```
-
-Bear in mind that the previous websocket will not close, so be careful with this parameter.
 
 **object**
 
@@ -527,7 +535,8 @@ angular.run(function ($websocket) {
         reconnect: true,
         reconnectInterval: 2000,
         mock: false,
-        enqueue: false
+        enqueue: false,
+        forceNew: false
     );
 });
 ```
@@ -592,7 +601,8 @@ angular.run(function ($websocket) {
         reconnectInterval: 2000,
         enqueue: false,
         mock: false,
-        protocols: ['binary', 'base64']
+        protocols: ['binary', 'base64'],
+        forceNew: false
     });
 });
 ```
@@ -605,6 +615,7 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - **{Boolean} enqueue (false)**: enqueue unsent messages. By default, a websocket discards messages when the connection is closed (false) but it can enqueue them and send afterwards the connection gets open back (true). For more information see [Features - Enqueue Unsent Messages](#enqueue)
   - **{Boolean/Object} mock (false)**: mock a websocket server. By default, a websocket run only if the webserver socket is listening (false) but it can be useful to mock the backend to make the websocket working (true). For more information see [Features - Mock Websocket Server](#mock)
   - **{String/String[]} (null)**: Either a single protocol string or an array of protocol strings. This is the same as the WebSocket protocols argument.
+  - **{Boolean} forceNew (false)**: force creation of new connection. By default, a websocket is reused on [$websocket.$new](#new). For more information see [Features - Force New](#force)
 
 ### Constants
 

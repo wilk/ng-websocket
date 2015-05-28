@@ -17,7 +17,8 @@
             reconnectInterval: 2000,
             mock: false,
             enqueue: false,
-            protocols: null
+            protocols: null,
+            forceNew: false
         };
 
         wsp.$setup = function (cfg) {
@@ -65,15 +66,10 @@
                     if (typeof arguments[1] === 'string' && arguments[1].length > 0) cfg.protocols = [arguments[1]];
                     else if (typeof arguments[1] === 'object' && arguments[1].length > 0) cfg.protocols = arguments[1];
                 }
-            } else if(typeof cfg === 'object') {
-                if (cfg.forceNewConnection) {
-                    wss.$remove(cfg.url);
-                }
+            }
 
-                cfg = {
-                    url: cfg.url,
-                    forceNewConnection: cfg.forceNewConnection ? cfg.forceNewConnection : false
-                };
+            if (cfg.forceNew) {
+                wss.$remove(cfg.url);
             }
 
             // If the websocket already exists, return that instance
