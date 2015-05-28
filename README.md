@@ -409,7 +409,7 @@ angular.run(function ($websocket) {
 Bear in mind that this will open a new connection to the same websocket, no matter if one exists already. Make sure to close
 your old websocket correctly and timely.
 
-** Default: false **
+**Default: false**
 
 # Testing
 
