@@ -615,7 +615,7 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - **{Boolean} enqueue (false)**: enqueue unsent messages. By default, a websocket discards messages when the connection is closed (false) but it can enqueue them and send afterwards the connection gets open back (true). For more information see [Features - Enqueue Unsent Messages](#enqueue)
   - **{Boolean/Object} mock (false)**: mock a websocket server. By default, a websocket run only if the webserver socket is listening (false) but it can be useful to mock the backend to make the websocket working (true). For more information see [Features - Mock Websocket Server](#mock)
   - **{String/String[]} (null)**: Either a single protocol string or an array of protocol strings. This is the same as the WebSocket protocols argument.
-  - **{Boolean} forceNew (false)**: force creation of new connection. By default, a websocket is reused on [$websocket.$new](#new). For more information see [Features - Force New](#force)
+  - **{Boolean} forceNew (false)**: force creation of new connection. By default, a websocket is reused on [$websocket.$new](#new). For more information see [Features - Force New](#force-new)
 
 ### Constants
 
