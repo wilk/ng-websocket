@@ -15,6 +15,7 @@ ng-websocket
     - [Auto Reconnection](#reconnect)
     - [Enqueue Unsent Messages](#enqueue)
     - [Mock Websocket Server](#mock)
+    - [Force New Connection](#force-new)
   - [Testing](#testing)
   - [API](#api)
     - [$websocketProvider](#websocketProvider)
