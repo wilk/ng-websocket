@@ -135,6 +135,40 @@ describe('Testing ng-websocket', function () {
         });
     });
 
+    describe('Testing close code, reason and CloseEvent', function () {
+        var ws;
+
+        beforeEach(function (done) {
+            ws = $websocket.$new({
+                url: 'ws://localhost:12345',
+                mock: true
+            });
+
+            ws.$on('$open', function () {
+                done();
+            });
+        });
+
+        afterEach(function () {
+            ws.$close();
+        });
+
+        it('should receive a CloseEvent on $close event', function (done) {
+            var code = 5000;
+            var reason = 'close reason';
+
+            ws.$close(code, reason);
+
+            ws.$on('$close', function (closeEvent) {
+                expect(closeEvent).not.toBeUndefined();
+                expect(closeEvent.code).toEqual(code);
+                expect(closeEvent.reason).toEqual(reason);
+
+                done();
+            });
+        });
+    });
+
     describe('Testing $on, $un, $emit functions', function () {
         var ws;
 

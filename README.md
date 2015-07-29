@@ -609,7 +609,7 @@ There are custom events fired by ngWebsocket.
 They are useful to setup a listener for certain situations and behaviours:
 
   - **$open**: the websocket gets open
-  - **$close**: the websocket gets closed
+  - **$close**: the websocket gets closed (callback params: {CloseEvent} closeEvent)
   - **$error**: an error occurred (callback params: {Error} error)
   - **$message**: the original message sent from the server (callback params: {String} message). Usually, it's a JSON encoded string containing the event to fire and the data to pass ({"event": "an event", "data": "some data"})
 
@@ -784,8 +784,15 @@ angular.run(function ($websocket) {
 **Usage**
 
 ```javascript
-$close()
+$close(code, reason)
 ```
+
+**Arguments**
+
+| **Param** | **Type** | **Details** |
+| --------- | -------- | ----------- |
+| code    | Number   | status code, optional |
+| reason  | String   | explanation, optional |
 
 **Returns**
 
