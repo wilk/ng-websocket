@@ -89,6 +89,8 @@
     function $websocket (cfg, $http, removeFromCache) {
         var me = this;
 
+        removeFromCache = removeFromCache || function() {};
+
         if (typeof cfg === 'undefined' || (typeof cfg === 'object' && typeof cfg.url === 'undefined')) {
         	removeFromCache();
         	throw new Error('An url must be specified for WebSocket');
