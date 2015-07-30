@@ -68,7 +68,10 @@
             if (typeof ws === 'undefined') {
                 var wsCfg = angular.extend({}, wss.$$config, cfg);
 
-                ws = new $websocket(wsCfg, $http);
+                ws = new $websocket(wsCfg, $http, function() {
+                	delete wss.$$websocketList[wsCfg.url];
+                });
+
                 wss.$$websocketList[wsCfg.url] = ws;
             }
 
@@ -83,10 +86,13 @@
      * @description
      * HTML5 Websocket wrapper class for AngularJS
      */
-    function $websocket (cfg, $http) {
+    function $websocket (cfg, $http, removeFromCache) {
         var me = this;
 
-        if (typeof cfg === 'undefined' || (typeof cfg === 'object' && typeof cfg.url === 'undefined')) throw new Error('An url must be specified for WebSocket');
+        if (typeof cfg === 'undefined' || (typeof cfg === 'object' && typeof cfg.url === 'undefined')) {
+        	removeFromCache();
+        	throw new Error('An url must be specified for WebSocket');
+        }
 
         me.$$eventMap = {};
         me.$$ws = undefined;
@@ -169,6 +175,8 @@
                     me.$$reconnectTask = setInterval(function () {
                         if (me.$status() === me.$CLOSED) me.$open();
                     }, me.$$config.reconnectInterval);
+                } else {
+                	removeFromCache();
                 }
 
                 me.$$fireEvent('$close');
