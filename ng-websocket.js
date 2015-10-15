@@ -8,7 +8,7 @@
      * @description
      * HTML5 WebSocket provider for AngularJS
      */
-    function $websocketProvider () {
+    function $websocketProvider() {
         var wsp = this;
 
         wsp.$$config = {
@@ -17,7 +17,8 @@
             reconnectInterval: 2000,
             mock: false,
             enqueue: false,
-            protocols: null
+            protocols: null,
+            binary: false
         };
 
         wsp.$setup = function (cfg) {
@@ -39,7 +40,7 @@
      * @description
      * HTML5 Websocket service for AngularJS
      */
-    function $websocketService (cfg, $http) {
+    function $websocketService(cfg, $http) {
         var wss = this;
 
         wss.$$websocketList = {};
@@ -83,7 +84,7 @@
      * @description
      * HTML5 Websocket wrapper class for AngularJS
      */
-    function $websocket (cfg, $http) {
+    function $websocket(cfg, $http) {
         var me = this;
 
         if (typeof cfg === 'undefined' || (typeof cfg === 'object' && typeof cfg.url === 'undefined')) throw new Error('An url must be specified for WebSocket');
@@ -118,26 +119,61 @@
             }
         };
 
-        me.$$init = function (cfg) {
+        function readBlob(blob, done) {
+            var fileReader = new FileReader();
 
+            fileReader.onload = function () {
+                var dv = new DataView(this.result);
+                var decoder = new TextDecoder('utf-8');
+                var decoded = JSON.parse(decoder.decode(dv));
+
+                done(decoded);
+            };
+
+            fileReader.readAsArrayBuffer(blob);
+        }
+
+        function readArrayBuffer(ab, done) {
+            var dv = new DataView(ab);
+            var decoder = new TextDecoder('utf-8');
+            var decoded = JSON.parse(decoder.decode(dv));
+
+            done(decoded);
+        }
+
+        me.$$init = function (cfg) {
             if (cfg.mock) {
                 me.$$ws = new $$mockWebsocket(cfg.mock, $http);
-            }
-            else if (cfg.protocols) {
+            } else if (cfg.protocols) {
                 me.$$ws = new WebSocket(cfg.url, cfg.protocols);
-            }
-            else {
+            } else {
                 me.$$ws = new WebSocket(cfg.url);
             }
 
             me.$$ws.onmessage = function (message) {
                 try {
-                    var decoded = JSON.parse(message.data);
-                    me.$$fireEvent(decoded.event, decoded.data);
-                    me.$$fireEvent('$message', decoded);
-                }
-                catch (err) {
-                    me.$$fireEvent('$message', message.data);
+                    if (me.$$config.binary === true) {
+                        if(message.data instanceof Blob) {
+                            readBlob(message.data, function (decoded) {
+                                me.$$fireEvent(decoded.event, decoded.data);
+                                me.$$fireEvent('$message', decoded);
+                            });
+                        }
+
+                        if (message.data instanceof ArrayBuffer) {
+                            readArrayBuffer(message.data, function (decoded) {
+                                me.$$fireEvent(decoded.event, decoded.data);
+                                me.$$fireEvent('$message', decoded);
+                            });
+                        }
+                    } else {
+                        var decoded = JSON.parse(message.data);
+
+                        me.$$fireEvent(decoded.event, decoded.data);
+                        me.$$fireEvent('$message', decoded);
+                    }
+                } catch (err) {
+                    console.error('WebSocket parser error', err);
                 }
             };
 
@@ -196,9 +232,11 @@
             Array.prototype.push.apply(handlers, arguments);
 
             var event = handlers.shift();
+
             if (typeof event !== 'string' || handlers.length === 0) throw new Error('$on accept two parameters at least: a String and a Function or an array of Functions');
 
             me.$$eventMap[event] = me.$$eventMap[event] || [];
+
             for (var i = 0; i < handlers.length; i++) {
                 me.$$eventMap[event].push(handlers[i]);
             }
@@ -214,9 +252,34 @@
             return me;
         };
 
+        function stringToUint(string) {
+            var string = encodeURIComponent(string),
+                charList = string.split(''),
+                uintArray = [];
+
+            for (var i = 0; i < string.length; i++) {
+                uintArray.push(charList[i].charCodeAt(0));
+            }
+
+            return new Uint8Array(uintArray);
+        }
+
         me.$$send = function (message) {
-            if (me.$ready()) me.$$ws.send(JSON.stringify(message));
-            else if (me.$$config.enqueue) me.$$queue.push(message);
+            if (me.$ready()) {
+
+                var out;
+
+                if (me.$$config.binary === true) {
+                    out = stringToUint(JSON.stringify(message))
+                } else {
+                    out = JSON.stringify(message);
+                }
+
+                me.$$ws.send(out);
+
+            } else if (me.$$config.enqueue) {
+                me.$$queue.push(message);
+            }
         };
 
         me.$emit = function (event, data) {
@@ -274,7 +337,7 @@
         return me;
     }
 
-    function $$mockWebsocket (cfg, $http) {
+    function $$mockWebsocket(cfg, $http) {
         cfg = cfg || {};
 
         var me = this,
@@ -313,10 +376,14 @@
             return me;
         };
 
-        me.onmessage = function () {};
-        me.onerror = function () {};
-        me.onopen = function () {};
-        me.onclose = function () {};
+        me.onmessage = function () {
+        };
+        me.onerror = function () {
+        };
+        me.onopen = function () {
+        };
+        me.onclose = function () {
+        };
 
         setInterval(function () {
             if (messageQueue.length > 0) {
