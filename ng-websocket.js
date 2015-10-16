@@ -197,11 +197,16 @@
             return me;
         };
 
-        me.$un = function (event) {
+        me.$un = function (event, handler) {
             if (typeof event !== 'string') throw new Error('$un needs a String representing an event.');
 
-            if (typeof me.$$eventMap[event] !== 'undefined') delete me.$$eventMap[event];
-
+            if (typeof me.$$eventMap[event] !== 'undefined') {
+                if (typeof handler == 'undefined') delete me.$$eventMap[event];
+                var pos = me.$$eventMap[event].indexOf(handler);
+                if (pos > -1) {
+                    me.$$eventMap[event].splice(pos, 1);
+                }
+            }
             return me;
         };
 
