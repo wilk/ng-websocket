@@ -207,12 +207,29 @@
             return me;
         };
 
-        me.$un = function (event) {
+        me.$un = function () {
+
+            var handlers = [], index, eventMap;
+
+            Array.prototype.push.apply(handlers, arguments);
+
+            var event = handlers.shift();
+
             if (typeof event !== 'string') throw new Error('$un needs a String representing an event.');
 
-            if (typeof me.$$eventMap[event] !== 'undefined') delete me.$$eventMap[event];
+            if (handlers.length == 0) {
+                if (typeof me.$$eventMap[event] !== 'undefined')
+                    delete me.$$eventMap[event];
+                }
+            else {
+                for (var i = 0; i < handlers.length; i++) {
+                  index = me.$$eventMap[event].indexOf(handlers[i]);
 
-            return me;
+                  if (index >= 0 ) {
+                    me.$$eventMap[event].splice(index, 1);
+                    }
+                  }
+                }
         };
 
         me.$$send = function (message) {
