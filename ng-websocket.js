@@ -200,7 +200,8 @@
 
             me.$$eventMap[event] = me.$$eventMap[event] || [];
             for (var i = 0; i < handlers.length; i++) {
-                me.$$eventMap[event].push(handlers[i]);
+                if (me.$$eventMap[event].indexOf(handlers[i]) < 0)
+                    me.$$eventMap[event].push(handlers[i]);
             }
 
             return me;
