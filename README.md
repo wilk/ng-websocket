@@ -429,7 +429,8 @@ angular.config(function ($websocketProvider) {
         reconnect: true,
         reconnectInterval: 2000,
         mock: false,
-        enqueue: false
+        enqueue: false,
+        binary: false
     });
 });
 ```
@@ -515,7 +516,8 @@ angular.run(function ($websocket) {
         reconnect: true,
         reconnectInterval: 2000,
         mock: false,
-        enqueue: false
+        enqueue: false,
+        binary: false
     );
 });
 ```
@@ -553,6 +555,8 @@ Following the API in detail.
 The constructor of the ngWebsocket accepts two kind of parameters:
 
   - String: the url starting with the WebSocket schema (ws:// or wss://)
+  plus an optional String/String[] containing the protocols (this matches
+  the WebSocket constructor API)
   - Object: a configuration containing the websocket url
 
 The url is a requirement to create a new ngWebsocket.
@@ -563,7 +567,7 @@ Example of a basic instantiation:
 
 ```javascript
 angular.run(function ($websocket) {
-    var ws = $websocket.$new('ws://localhost:12345');
+    var ws = $websocket.$new('ws://localhost:12345', ['binary', 'base64']);
 });
 ```
 
@@ -577,7 +581,9 @@ angular.run(function ($websocket) {
         reconnect: true,
         reconnectInterval: 2000,
         enqueue: false,
-        mock: false
+        mock: false,
+        protocols: ['binary', 'base64'],
+        binary: false
     });
 });
 ```
@@ -589,6 +595,8 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - **{Number} reconnectInterval (2000)**: auto reconnect interval. By default, a websocket try to reconnect after 2000 ms (2 seconds). For more information see [Features - Auto Reconnect](#reconnect)
   - **{Boolean} enqueue (false)**: enqueue unsent messages. By default, a websocket discards messages when the connection is closed (false) but it can enqueue them and send afterwards the connection gets open back (true). For more information see [Features - Enqueue Unsent Messages](#enqueue)
   - **{Boolean/Object} mock (false)**: mock a websocket server. By default, a websocket run only if the webserver socket is listening (false) but it can be useful to mock the backend to make the websocket working (true). For more information see [Features - Mock Websocket Server](#mock)
+  - **{String/String[]} protocols (null)**: Either a single protocol string or an array of protocol strings. This is the same as the WebSocket protocols argument.
+  - **{Boolean} binary (false)**: Enables a binary socket connection (all tx data will be converted to Uint8Array before sending and rx data will decoded from ArryBuffer or Blob)
 
 ### Constants
 
@@ -915,7 +923,21 @@ Following the explanation of the configuration object - {Type} PropertyName (def
   - **{Number} messageInterval (2000)**: the internal websocket sends enqueued message with this interval time
   - **{Object/String} fixtures ({})**: an object of fixtures, where the keys are the events and the values are the data to respond, or an url to retrieve remote fixtures via HTTP
 
-Fixtures can mock both custom events and data:
+Fixtures can mock both custom events and data.
+They can be added as a static object with the following structure:
+
+```javascript
+fixtures: {
+    'incoming event name': {
+        event: 'outgoing event name',
+        data: 'response data'
+    }
+}
+```
+
+The *incoming event name* is the event fired by the websocket while the *outgoing event name* is the one sent by the mocked webserver.
+So, it be useful to map events with a custom response.
+By default, the mock feature acts like a parrot server, responding with the same data on the same received event.
 
 ```javascript
 angular.run(function ($websocket) {
@@ -954,7 +976,8 @@ angular.run(function ($websocket) {
       });
 ```
 
-Example with an url:
+Fixtures can be loaded through an HTTP request.
+In fact, it be useful to have those in a JSON file or created by the webserver:
 
 ```javascript
 angular.run(function ($websocket) {
