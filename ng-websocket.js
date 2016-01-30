@@ -55,7 +55,9 @@
 
             // Url or url + protocols initialization
             if (typeof cfg === 'string') {
-                cfg = {url: cfg};
+                cfg = {
+                    url: cfg
+                };
 
                 // url + protocols
                 if (arguments.length > 1) {
@@ -66,6 +68,7 @@
 
             // If the websocket already exists, return that instance
             var ws = wss.$get(cfg.url);
+
             if (typeof ws === 'undefined') {
                 var wsCfg = angular.extend({}, wss.$$config, cfg);
 
@@ -119,13 +122,72 @@
             }
         };
 
+        function utf8ArrayToStr(array) {
+            //console.time('utf8ArrayToStr');
+            var out, i, len, c;
+            var char2, char3;
+
+            out = "";
+            len = array.length;
+            i = 0;
+
+            while (i < len) {
+                c = array[i++];
+
+                switch (c >> 4) {
+                    case 0:
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    case 5:
+                    case 6:
+                    case 7:
+                        // 0xxxxxxx
+                        out += String.fromCharCode(c);
+                        break;
+                    case 12:
+                    case 13:
+                        // 110x xxxx   10xx xxxx
+                        char2 = array[i++];
+                        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F));
+                        break;
+                    case 14:
+                        // 1110 xxxx  10xx xxxx  10xx xxxx
+                        char2 = array[i++];
+                        char3 = array[i++];
+                        out += String.fromCharCode(((c & 0x0F) << 12) |
+                            ((char2 & 0x3F) << 6) |
+                            ((char3 & 0x3F) << 0));
+                        break;
+                }
+            }
+
+            //console.timeEnd('utf8ArrayToStr');
+
+            return out;
+        }
+
+        function ab2string(ab) {
+            //console.time('ab2string');
+            var u8a = new Uint8Array(ab);
+
+            //console.timeEnd('ab2string');
+            return utf8ArrayToStr(u8a);
+
+            // var decoder = new TextDecoder('UTF-8');
+            // return decoder.decode(ab);
+        }
+
         function readBlob(blob, done) {
+            //console.time('readBlob');
             var fileReader = new FileReader();
 
             fileReader.onload = function () {
-                var dv = new DataView(this.result);
-                var decoder = new TextDecoder('utf-8');
-                var decoded = JSON.parse(decoder.decode(dv));
+                var ab = this.result;
+                //console.timeEnd('readBlob');
+
+                var decoded = JSON.parse(ab2string(ab));
 
                 done(decoded);
             };
@@ -134,10 +196,7 @@
         }
 
         function readArrayBuffer(ab, done) {
-            var dv = new DataView(ab);
-            var decoder = new TextDecoder('utf-8');
-            var decoded = JSON.parse(decoder.decode(dv));
-
+            var decoded = JSON.parse(ab2string(ab));
             done(decoded);
         }
 
@@ -150,10 +209,14 @@
                 me.$$ws = new WebSocket(cfg.url);
             }
 
+            if(me.$$config.binary === true){
+                me.$$ws.binaryType = 'arraybuffer';
+            }
+
             me.$$ws.onmessage = function (message) {
                 try {
                     if (me.$$config.binary === true) {
-                        if(message.data instanceof Blob) {
+                        if (message.data instanceof Blob) {
                             readBlob(message.data, function (decoded) {
                                 me.$$fireEvent(decoded.event, decoded.data);
                                 me.$$fireEvent('$message', decoded);
@@ -199,7 +262,7 @@
                 me.$$fireEvent('$open');
             };
 
-            me.$$ws.onclose = function () {
+            me.$$ws.onclose = function (e) {
                 // Activate the reconnect task
                 if (me.$$config.reconnect) {
                     me.$$reconnectTask = setInterval(function () {
@@ -207,7 +270,7 @@
                     }, me.$$config.reconnectInterval);
                 }
 
-                me.$$fireEvent('$close');
+                me.$$fireEvent('$close', e);
             };
 
             return me;
@@ -358,8 +421,7 @@
             if (me.readyState === me.OPEN) {
                 messageQueue.push(message);
                 return me;
-            }
-            else throw new Error('WebSocket is already in CLOSING or CLOSED state.');
+            } else throw new Error('WebSocket is already in CLOSING or CLOSED state.');
         };
 
         me.close = function () {
@@ -427,8 +489,7 @@
             $http.get(fixtures)
                 .success(start)
                 .error(start);
-        }
-        else start(fixtures);
+        } else start(fixtures);
 
         return me;
     }
