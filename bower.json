@@ -1,11 +1,11 @@
 {
-  "name": "ng-websocket",
-  "version": "0.2.1",
+  "name": "ng-websocket-bin",
+  "version": "0.3.0",
   "authors": [
-    "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>"
+    "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>, Ruslan Shashkov"
   ],
-  "description": "AngularJS HTML5 WebSocket powerful library",
-  "main": "ng-websocket.js",
+  "description": "AngularJS HTML5 WebSocket powerful library (binary)",
+  "main": "ng-websocket-bin.js",
   "keywords": [
     "angular",
     "angularjs",
