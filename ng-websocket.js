@@ -250,6 +250,8 @@
         };
 
         me.$close = function () {
+            removeFromCache();
+
             if (me.$status() !== me.$CLOSED) me.$$ws.close();
 
             if (me.$$reconnectTask) {
