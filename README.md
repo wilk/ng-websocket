@@ -680,7 +680,7 @@ The above websocket has not listener attached at the end of the execution.
 **Usage**
 
 ```javascript
-$un(event)
+$un(event, [handler])
 ```
 
 **Arguments**
@@ -688,6 +688,8 @@ $un(event)
 | **Param** | **Type** | **Details** |
 | --------- | -------- | ----------- |
 | event     | String   | the event to detach the listener |
+| handler (optional) | Function | a specific handler to detach |
+
 
 **Returns**
 
