@@ -1,6 +1,8 @@
 ng-websocket
 ============
 
+# This library is no longer mainteined. Please have a look to the angular-websocket project: [Angular-Websocket](https://github.com/AngularClass/angular-websocket)
+
 **AngularJS HTML5 WebSocket** powerful wrapper module to develop with ease and fun!
 
 # Index
