@@ -27,8 +27,8 @@
             return wsp;
         };
 
-        wsp.$get = ['$http', function ($http) {
-            return new $websocketService(wsp.$$config, $http);
+        wsp.$get = ['$http', '$rootScope', function ($http, $rootScope) {
+            return new $websocketService(wsp.$$config, $http, $rootScope);
         }];
     }
 
@@ -39,7 +39,7 @@
      * @description
      * HTML5 Websocket service for AngularJS
      */
-    function $websocketService (cfg, $http) {
+    function $websocketService (cfg, $http, $rootScope) {
         var wss = this;
 
         wss.$$websocketList = {};
@@ -68,7 +68,7 @@
             if (typeof ws === 'undefined') {
                 var wsCfg = angular.extend({}, wss.$$config, cfg);
 
-                ws = new $websocket(wsCfg, $http);
+                ws = new $websocket(wsCfg, $http, $rootScope);
                 wss.$$websocketList[wsCfg.url] = ws;
             }
 
@@ -83,7 +83,7 @@
      * @description
      * HTML5 Websocket wrapper class for AngularJS
      */
-    function $websocket (cfg, $http) {
+    function $websocket (cfg, $http, $rootScope) {
         var me = this;
 
         if (typeof cfg === 'undefined' || (typeof cfg === 'object' && typeof cfg.url === 'undefined')) throw new Error('An url must be specified for WebSocket');
@@ -113,7 +113,12 @@
 
             if (typeof handlers !== 'undefined') {
                 for (var i = 0; i < handlers.length; i++) {
-                    if (typeof handlers[i] === 'function') handlers[i].apply(me, args);
+                    if (typeof handlers[i] === 'function') {
+                        handlers[i].apply(me, args);
+                        if (!$rootScope.$$phase) {
+                            $rootScope.$digest();
+                        }
+                    }
                 }
             }
         };
@@ -181,14 +186,6 @@
         me.$OPEN = 1;
         me.$CLOSING = 2;
         me.$CLOSED = 3;
-
-        // TODO: it doesn't refresh the view (maybe $apply on something?)
-        /*me.$bind = function (event, scope, model) {
-         me.$on(event, function (message) {
-         model = message;
-         scope.$apply();
-         });
-         };*/
 
         me.$on = function () {
             var handlers = [];
