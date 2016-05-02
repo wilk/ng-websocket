@@ -163,7 +163,7 @@
                 me.$$fireEvent('$open');
             };
 
-            me.$$ws.onclose = function () {
+            me.$$ws.onclose = function (message) {
                 // Activate the reconnect task
                 if (me.$$config.reconnect) {
                     me.$$reconnectTask = setInterval(function () {
@@ -171,7 +171,7 @@
                     }, me.$$config.reconnectInterval);
                 }
 
-                me.$$fireEvent('$close');
+                me.$$fireEvent('$close',message);
             };
 
             return me;
