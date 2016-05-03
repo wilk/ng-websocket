@@ -13,6 +13,9 @@ describe('Testing ng-websocket-service', function () {
             expect($websocket.$new).toBeDefined();
             expect($websocket.$get).toBeDefined();
         });
+		it('should have $remove method', function(){
+			expect($websocket.$remove).toBeDefined();
+		});
     });
 
     describe('Testing $new operator', function () {
@@ -82,5 +85,20 @@ describe('Testing ng-websocket-service', function () {
 
             expect(wsObj).not.toEqual(ws);
         });
+
+		it('should return a new ng-websocket instance for forceNew', function(){
+			var url = 'ws://localhost:12345';
+			var ws1 = $websocket.$new({
+				url: url
+			});
+
+			var ws2 = $websocket.$new({
+				url: url,
+				forceNew: true
+			});
+
+			expect(ws1).not.toEqual(ws2);	
+		});
     });
+
 });
