@@ -214,20 +214,34 @@
             return me;
         };
 
-        me.$$send = function (message) {
-            if (me.$ready()) me.$$ws.send(JSON.stringify(message));
-            else if (me.$$config.enqueue) me.$$queue.push(message);
+        me.$$send = function (message, binary) {
+            if (me.$ready()) {
+                if (binary === undefined || !binary) {
+                    me.$$ws.send(JSON.stringify(message));
+                } else {
+                    me.$$ws.send(message);
+                }
+            }
+            else if (me.$$config.enqueue) {
+                me.$$queue.push(message);
+            }
         };
 
-        me.$emit = function (event, data) {
+        me.$emit = function (event, data, binary) {
             if (typeof event !== 'string') throw new Error('$emit needs two parameter: a String and a Object or a String');
 
-            var message = {
-                event: event,
-                data: data
-            };
+            if (binary === undefined || !binary) {
 
-            me.$$send(message);
+                var message = {
+                    event: event,
+                    data: data
+                };
+
+                me.$$send(message);
+            } else {
+                // do not compose JSON message, send 'data' as-is
+                me.$$send(data, binary);
+            }
 
             return me;
         };
