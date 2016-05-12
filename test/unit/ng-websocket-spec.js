@@ -163,6 +163,16 @@ describe('Testing ng-websocket', function () {
             });
         });
 
+        it('should set a listener for a client on $close general event', function (done) {
+            ws.$close();
+
+            ws.$on({event: '$close', client: 'client'}, function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                done();
+            });
+        });
+
         it('should set a list of listeners on $close general event', function (done) {
             var listeners = 3,
                 counter = 0;
@@ -189,6 +199,32 @@ describe('Testing ng-websocket', function () {
               });
         });
 
+        it('should set a list of listeners for a client on $close general event', function (done) {
+            var listeners = 3,
+                counter = 0;
+
+            ws.$close();
+
+            ws.$on({event: '$close', client: 'client'}, function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                counter++;
+              })
+              .$on({event: '$close', client: 'client'}, function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                counter++;
+              })
+              .$on({event: '$close', client: 'client'}, function () {
+                expect(ws.$status()).toEqual(ws.$CLOSED);
+
+                counter++;
+
+                expect(counter).toEqual(listeners);
+                done();
+              });
+        });
+
         it('should unset a listener on $close general event', function (done) {
             ws.$close();
 
@@ -205,10 +241,57 @@ describe('Testing ng-websocket', function () {
             ws.$un('$close');
         });
 
+        it('should unset a listener for a client on $close general event', function (done) {
+            ws.$close();
+
+            var noUpdate = true;
+            ws.$on({event: '$close', client: 'client1'}, function () {
+                noUpdate = false;
+            });
+
+            setTimeout(function () {
+                expect(noUpdate).toBeTruthy();
+                done();
+            }, 4000);
+
+            ws.$un({event: '$close', client: 'client1'});
+        });
+
+        it('should unset a listener for a client and keep a listener for another client on $close general event', function (done) {
+            ws.$close();
+
+            var noUpdate1 = true;
+            var noUpdate2 = true;
+            ws.$on({event: '$close', client: 'client1'}, function () {
+                noUpdate1 = false;
+            });
+            ws.$on({event: '$close', client: 'client2'}, function () {
+                noUpdate2 = false;
+            });
+
+            setTimeout(function () {
+                expect(noUpdate1).toBeTruthy();
+                expect(noUpdate2).toBeFalsy();
+                done();
+            }, 4000);
+
+            ws.$un({event: '$close', client: 'client1'});
+        });
+
         it('should emit a custom event', function (done) {
             ws.$emit('custom event', 'hello world');
 
             ws.$on('custom event', function (message) {
+                expect(message).toEqual('hello world');
+
+                done();
+            });
+        });
+
+        it('should emit a custom event and a client receive it', function (done) {
+            ws.$emit('custom event', 'hello world');
+
+            ws.$on({event: 'custom event', client: 'client1'}, function (message) {
                 expect(message).toEqual('hello world');
 
                 done();

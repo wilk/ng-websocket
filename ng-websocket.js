@@ -108,12 +108,17 @@
 
             Array.prototype.push.apply(args, arguments);
 
-            var event = args.shift(),
-                handlers = me.$$eventMap[event];
+            var event   = args.shift(),
+                clients = me.$$eventMap[event];
 
-            if (typeof handlers !== 'undefined') {
-                for (var i = 0; i < handlers.length; i++) {
-                    if (typeof handlers[i] === 'function') handlers[i].apply(me, args);
+            if (typeof clients !== 'undefined') {
+                for (var client in clients) {
+                    var handlers = clients[client];
+                    if (typeof handlers !== 'undefined') {
+                        for (var i = 0; i < handlers.length; i++) {
+                            if (typeof handlers[i] === 'function') { handlers[i].apply(me, args); }
+                        }
+                    }
                 }
             }
         };
@@ -195,21 +200,29 @@
 
             Array.prototype.push.apply(handlers, arguments);
 
-            var event = handlers.shift();
-            if (typeof event !== 'string' || handlers.length === 0) throw new Error('$on accept two parameters at least: a String and a Function or an array of Functions');
-
-            me.$$eventMap[event] = me.$$eventMap[event] || [];
-            for (var i = 0; i < handlers.length; i++) {
-                me.$$eventMap[event].push(handlers[i]);
+            var cfg = handlers.shift();
+            cfg = cfg || {};
+            if (typeof cfg === 'string') cfg = { event: cfg, };
+            if (typeof cfg.client === 'undefined') cfg.client = '$websocket';
+            if (typeof cfg.event !== 'string' || handlers.length === 0) throw new Error('$on accept two parameters at least: a String and a Function or an array of Functions');
+        
+            me.$$eventMap[cfg.event] = me.$$eventMap[cfg.event] || [];
+            me.$$eventMap[cfg.event][cfg.client] = me.$$eventMap[cfg.event][cfg.client] || [];
+            for (var i = 0; i < handlers.length; i++)
+            {
+                me.$$eventMap[cfg.event][cfg.client].push(handlers[i]);
             }
 
             return me;
         };
 
         me.$un = function (event) {
-            if (typeof event !== 'string') throw new Error('$un needs a String representing an event.');
+            cfg = event || {};
+            if (typeof cfg === 'string') cfg = { event: cfg, };
+            if (typeof cfg.client === 'undefined') cfg.client = '$websocket';
+            if (typeof cfg.event !== 'string') throw new Error('$un needs a String representing an event.');
 
-            if (typeof me.$$eventMap[event] !== 'undefined') delete me.$$eventMap[event];
+            if (typeof me.$$eventMap[cfg.event][cfg.client] !== 'undefined') delete me.$$eventMap[cfg.event][cfg.client];
 
             return me;
         };
