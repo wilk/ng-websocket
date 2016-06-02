@@ -163,7 +163,7 @@
                 me.$$fireEvent('$open');
             };
 
-            me.$$ws.onclose = function () {
+            me.$$ws.onclose = function (closeEvent) {
                 // Activate the reconnect task
                 if (me.$$config.reconnect) {
                     me.$$reconnectTask = setInterval(function () {
@@ -171,7 +171,7 @@
                     }, me.$$config.reconnectInterval);
                 }
 
-                me.$$fireEvent('$close');
+                me.$$fireEvent('$close', closeEvent);
             };
 
             return me;
@@ -239,8 +239,8 @@
             return me;
         };
 
-        me.$close = function () {
-            if (me.$status() !== me.$CLOSED) me.$$ws.close();
+        me.$close = function (code, reason) {
+            if (me.$status() !== me.$CLOSED) me.$$ws.close(code, reason);
 
             if (me.$$reconnectTask) {
                 clearInterval(me.$$reconnectTask);
@@ -299,14 +299,14 @@
             else throw new Error('WebSocket is already in CLOSING or CLOSED state.');
         };
 
-        me.close = function () {
+        me.close = function (code, reason) {
             if (me.readyState === me.OPEN) {
                 me.readyState = me.CLOSING;
 
                 setTimeout(function () {
                     me.readyState = me.CLOSED;
 
-                    me.onclose();
+                    me.onclose({code: code, reason: reason}); // mock CloseEvent object
                 }, closeTimeout);
             }
 
